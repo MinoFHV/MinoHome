@@ -13,8 +13,6 @@ static const char *TAG = "MQTT";
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
 
-    char *topic = ((esp_mqtt_event_handle_t) event_data)->topic;
-    char *data = ((esp_mqtt_event_handle_t) event_data)->data;
 
     switch (event_id)
     {
@@ -23,9 +21,6 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
             break;
         case MQTT_EVENT_DISCONNECTED:
             ESP_LOGI(TAG, "MQTT Disconnected!");
-            break;
-        case MQTT_EVENT_DATA:
-            ESP_LOGI(TAG, "MQTT Topic Published! Topic: %s - Data: %s", topic, data);
             break;
         case MQTT_EVENT_ERROR:
             ESP_LOGI(TAG, "MQTT Error!");
@@ -73,6 +68,8 @@ void sendMQTTpayload(const char *topic, const void *value, formatter_t formatter
 
     char buf[32];
     formatter(buf, sizeof(buf), value);
+    
     esp_mqtt_client_publish(mqtt_client, topic, buf, 0, 1, 0);
+    ESP_LOGI(TAG, "Published message, topic=%s, data=%s", topic, buf);
 
 }
