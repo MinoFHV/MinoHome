@@ -4,6 +4,7 @@ build/
 
 homeassistant/*
 !homeassistant/
+!homeassistant/lovelace/
 !homeassistant/automations.yaml
 !homeassistant/configuration.yaml
 !homeassistant/mqtt_sensors.yaml

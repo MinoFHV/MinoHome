@@ -3,29 +3,35 @@ sensor:
     state_topic: "home/esp32/temperature"
     unit_of_measurement: "°C"
     device_class: temperature
+    unique_id: esp32_temperature
 
   - name: "ESP32 Humidity"
     state_topic: "home/esp32/humidity"
     unit_of_measurement: "%"
     device_class: humidity
+    unique_id: esp32_humidity
 
   - name: "ESP32 Potentiometer Voltage"
     state_topic: "home/esp32/poti_voltage"
     unit_of_measurement: "V"
     device_class: voltage
+    unique_id: esp32_poti_voltage
 
   - name: "ESP32 Carbondioxide"
     state_topic: "home/esp32/carbondioxide"
     unit_of_measurement: "ppm"
     device_class: "carbon_dioxide"
+    unique_id: esp32_co2
 
   - name: "ESP32 Formaldehyde"
     state_topic: "home/esp32/formaldehyde"
     unit_of_measurement: "ppm"
     state_class: measurement
     icon: mdi:biohazard
+    unique_id: esp32_formaldehyde
 
-  - name: "ESP32 Lichtsensor"
+  - name: "ESP32 Light"
     state_topic: "home/esp32/lightsensor"
     unit_of_measurement: "lx"
     device_class: "illuminance"
+    unique_id: esp32_light

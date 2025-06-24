@@ -11,3 +11,13 @@ script: !include scripts.yaml
 scene: !include scenes.yaml
 
 mqtt: !include mqtt_sensors.yaml
+
+lovelace:
+  mode: yaml
+  dashboards:
+    mqtt-sensors:
+      mode: yaml
+      title: MQTT Sensors
+      icon: mdi:chip
+      show_in_sidebar: true
+      filename: lovelace/mqtt_dashboard.yaml
