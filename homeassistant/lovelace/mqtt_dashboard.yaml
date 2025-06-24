@@ -27,19 +27,19 @@ views:
               - type: history-graph
                 title: Temperature (°C)
                 hours_to_show: 0.25
-                refresh_interval: 60
+                refresh_interval: 1
                 entities:
                   - sensor.esp32_temperature
               - type: history-graph
                 title: Humidity (%)
                 hours_to_show: 0.25
-                refresh_interval: 60
+                refresh_interval: 1
                 entities:
                   - sensor.esp32_humidity
               - type: history-graph
                 title: Voltage (V)
                 hours_to_show: 0.25
-                refresh_interval: 60
+                refresh_interval: 1
                 entities:
                   - sensor.esp32_poti_voltage
 
@@ -62,18 +62,18 @@ views:
               - type: history-graph
                 title: CO2 (ppm)
                 hours_to_show: 0.25
-                refresh_interval: 60
+                refresh_interval: 1
                 entities:
                   - sensor.esp32_carbondioxide
               - type: history-graph
                 title: Formaldehyde (ppm)
                 hours_to_show: 0.25
-                refresh_interval: 60
+                refresh_interval: 1
                 entities:
                   - sensor.esp32_formaldehyde
               - type: history-graph
                 title: Light (lx)
                 hours_to_show: 0.25
-                refresh_interval: 60
+                refresh_interval: 1
                 entities:
                   - sensor.esp32_light
