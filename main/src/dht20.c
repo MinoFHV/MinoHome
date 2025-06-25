@@ -8,8 +8,6 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-#include <stdio.h>
-
 
 #define DHT20_ADDR                  0x38
 #define DHT20_CRC_POLYNOMIAL        0x31
@@ -18,11 +16,10 @@
 #define DHT20_I2C_MASTER_FREQ_HZ          100000 // 100kHz, no minimum SCL frequency required since interrface contains completely state logic according to datasheet
 
 
-static const char *TAG_DHT20 = "DHT20";
-static i2c_master_dev_handle_t i2c_dev_handle = NULL;
+static const char *TAG = "DHT20";
+static i2c_master_dev_handle_t dht20_dev_handle = NULL;
 
 
-// CRC8 Calculation
 static uint8_t dht20_crc8_check(const uint8_t *data, uint8_t len)
 {
 
@@ -40,51 +37,20 @@ static uint8_t dht20_crc8_check(const uint8_t *data, uint8_t len)
 
 }
 
-// Trigger measurement
 static esp_err_t dht20_start_measurement()
 {
 
     uint8_t commands[] = {0xAC, 0x33, 0x00}; // AC = Trigger Measure, Command Parameters: 0x33 and 0x00
-    return i2c_master_transmit(i2c_dev_handle, commands, sizeof(commands), pdMS_TO_TICKS(100));
+    return i2c_master_transmit(dht20_dev_handle, commands, sizeof(commands), pdMS_TO_TICKS(100));
 
 }
 
 static esp_err_t dht20_read_data(uint8_t *data, uint8_t len)
 {
-    return i2c_master_receive(i2c_dev_handle, data, len, pdMS_TO_TICKS(100));
+    return i2c_master_receive(dht20_dev_handle, data, len, pdMS_TO_TICKS(100));
 }
 
-// Algorithm to read out temperature and humidity
-esp_err_t dht20_read_temperature_and_humidity(float *temperature, float *humidity)
-{
 
-    esp_err_t ret = dht20_start_measurement();
-    if (ret != ESP_OK) return ret;
-
-    vTaskDelay(pdMS_TO_TICKS(100)); // According to datasheet, wait > 80ms
-
-    uint8_t data[7];
-    ret = dht20_read_data(data, 7);
-    if (ret != ESP_OK) return ret;
-
-    if (dht20_crc8_check(data, 6) != data[6])
-    {
-        ESP_LOGE(TAG_DHT20, "CRC Check failed!");
-        return ESP_ERR_INVALID_CRC;
-    }
-
-    // Parse data from uint32_t to float
-    uint32_t raw_humidity = ((uint32_t)(data[1]) << 12) | ((uint32_t)(data[2]) << 4) | ((data[3] >> 4) & 0x0F);
-    uint32_t raw_temperature = (((uint32_t)(data[3] & 0x0F)) << 16) | ((uint32_t)(data[4]) << 8) | data[5];
-
-    *humidity = (raw_humidity * 100.0f) / DHT20_SCALE_FACTOR_F;
-    *temperature = ((raw_temperature * 200.0f) / DHT20_SCALE_FACTOR_F) - 50.0f;
-
-    return ESP_OK;
-
-}
-
-// For Temperature and Humidity Sensor
 esp_err_t dht20_init(void)
 {
 
@@ -95,14 +61,48 @@ esp_err_t dht20_init(void)
         .scl_speed_hz = DHT20_I2C_MASTER_FREQ_HZ
     };
 
-    ESP_LOGI(TAG_DHT20, "Adding DHT20 device to I2C bus...");
-    esp_err_t ret = i2c_master_bus_add_device(get_i2c_master_bus_handle(), &i2c_device_config, &i2c_dev_handle);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG_DHT20, "i2c_master_bus_add_device failed: %s", esp_err_to_name(ret));
+    ESP_LOGI(TAG, "Adding DHT20 device to I2C bus...");
+    esp_err_t ret = i2c_master_bus_add_device(get_i2c_master_bus_handle(), &i2c_device_config, &dht20_dev_handle);
+    if (ret != ESP_OK)
+    {
+        ESP_LOGE(TAG, "i2c_master_bus_add_device failed: %s", esp_err_to_name(ret));
         return ret;
     }
 
-    ESP_LOGI(TAG_DHT20, "I2C initialized!");
+    ESP_LOGI(TAG, "DHT20 device initialized!");
+    return ESP_OK;
+
+}
+
+esp_err_t dht20_read_temperature_and_humidity(float *temperature, float *humidity)
+{
+
+    esp_err_t ret = dht20_start_measurement();
+    if (ret != ESP_OK) return ret;
+
+    vTaskDelay(pdMS_TO_TICKS(100)); // According to datasheet, wait > 80ms
+
+    uint8_t data[7];
+    ret = dht20_read_data(data, 7);
+    if (ret != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to read temperature and humidity: %s", esp_err_to_name(ret));
+        return ret;
+    }
+
+    if (dht20_crc8_check(data, 6) != data[6])
+    {
+        ESP_LOGE(TAG, "CRC Check failed!");
+        return ESP_ERR_INVALID_CRC;
+    }
+
+    // Parse data from uint32_t to float
+    uint32_t raw_humidity = ((uint32_t)(data[1]) << 12) | ((uint32_t)(data[2]) << 4) | ((data[3] >> 4) & 0x0F);
+    uint32_t raw_temperature = (((uint32_t)(data[3] & 0x0F)) << 16) | ((uint32_t)(data[4]) << 8) | data[5];
+
+    *humidity = (raw_humidity * 100.0f) / DHT20_SCALE_FACTOR_F;
+    *temperature = ((raw_temperature * 200.0f) / DHT20_SCALE_FACTOR_F) - 50.0f;
+
     return ESP_OK;
 
 }
