@@ -16,6 +16,7 @@ sensor:
     unit_of_measurement: "V"
     device_class: voltage
     unique_id: esp32_poti_voltage
+    value_template: "{{ value | float | round(2) }}"
 
   - name: "ESP32 Carbondioxide"
     state_topic: "home/esp32/carbondioxide"

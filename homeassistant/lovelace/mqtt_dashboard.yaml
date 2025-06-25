@@ -18,7 +18,7 @@ views:
                 entity: sensor.esp32_humidity
                 name: Humidity
               - type: entity
-                entity: sensor.esp32_poti_voltage
+                entity: sensor.esp32_poti_voltage_card
                 name: Voltage
 
           # Row 2: Graphs for those values

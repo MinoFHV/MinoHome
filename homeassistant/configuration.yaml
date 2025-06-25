@@ -11,6 +11,7 @@ script: !include scripts.yaml
 scene: !include scenes.yaml
 
 mqtt: !include mqtt_sensors.yaml
+template: !include template_sensors.yaml
 
 lovelace:
   mode: yaml
@@ -21,3 +22,8 @@ lovelace:
       icon: mdi:chip
       show_in_sidebar: true
       filename: lovelace/mqtt_dashboard.yaml
+
+recorder:
+  include:
+    entities:
+      - sensor.esp32_poti_voltage_graph
