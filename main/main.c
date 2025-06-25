@@ -12,6 +12,7 @@
 #include "my_mqtt.h"
 #include "my_wifi.h"
 #include "dht20.h"
+#include "potentiometer.h"
 
 void app_main()
 {
@@ -29,17 +30,24 @@ void app_main()
     // Init I2C
     dht20_init();
 
+    // Init ADC
+    adc_init();
+
     float dht20_temp = 0.0f;
     float dht20_humid = 0.0f;
+
+    float potentiometer_voltage = 0.0f;
 
     // Testing Area
     while (1)
     {
 
         dht20_read_temperature_and_humidity(&dht20_temp, &dht20_humid);
+        adc_potentiometer_read_voltage(&potentiometer_voltage);
 
         sendMQTTpayload("home/esp32/temperature", &dht20_temp, format_float);
         sendMQTTpayload("home/esp32/humidity", &dht20_humid, format_float);
+        sendMQTTpayload("home/esp32/poti_voltage", &potentiometer_voltage, format_float);
 
         vTaskDelay(pdMS_TO_TICKS(1000));
     }

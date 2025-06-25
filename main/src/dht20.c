@@ -89,7 +89,7 @@ esp_err_t dht20_read_temperature_and_humidity(float *temperature, float *humidit
 }
 
 // For Temperature and Humidity Sensor
-void dht20_init(void)
+esp_err_t dht20_init(void)
 {
 
     i2c_master_bus_config_t i2c_master_bus_config = {
@@ -102,10 +102,10 @@ void dht20_init(void)
     };
 
     ESP_LOGI(TAG_DHT20, "Initializing I2C bus...");
-    esp_err_t err = i2c_new_master_bus(&i2c_master_bus_config, &i2c_bus_handle);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG_DHT20, "i2c_new_master_bus failed: %s", esp_err_to_name(err));
-        return;
+    esp_err_t ret = i2c_new_master_bus(&i2c_master_bus_config, &i2c_bus_handle);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG_DHT20, "i2c_new_master_bus failed: %s", esp_err_to_name(ret));
+        return ret;
     }
 
     i2c_device_config_t i2c_device_config =
@@ -116,12 +116,13 @@ void dht20_init(void)
     };
 
     ESP_LOGI(TAG_DHT20, "Adding DHT20 device to I2C bus...");
-    err = i2c_master_bus_add_device(i2c_bus_handle, &i2c_device_config, &i2c_dev_handle);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG_DHT20, "i2c_master_bus_add_device failed: %s", esp_err_to_name(err));
-        return;
+    ret = i2c_master_bus_add_device(i2c_bus_handle, &i2c_device_config, &i2c_dev_handle);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG_DHT20, "i2c_master_bus_add_device failed: %s", esp_err_to_name(ret));
+        return ret;
     }
 
     ESP_LOGI(TAG_DHT20, "I2C initialized!");
+    return ESP_OK;
 
 }
