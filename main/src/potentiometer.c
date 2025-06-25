@@ -1,19 +1,20 @@
 #include "potentiometer.h"
 
+#include "esp_err.h"
 #include "esp_log.h"
 #include "esp_adc/adc_oneshot.h"
 
 
 #define ADC_UNIT        ADC_UNIT_1
-#define ADC_ATTEN       ADC_ATTEN_DB_12
-#define ADC_BITWIDTH    ADC_BANDWIDTH_12
+#define ADC_ATTEN       ADC_ATTEN_DB_12     // 11 is deprecated, 12 behaves the same as ADC_ATTEN_DB_12
+#define ADC_BITWIDTH    ADC_BITWIDTH_12
 #define ADC_CHANNEL     ADC_CHANNEL_0
 
 
 static char *TAG = "ADC";
 static adc_oneshot_unit_handle_t adc_oneshot_unit_handle;
-static const float max_voltage = 5.0f;
-static const uint16_t max_adc_raw_value = ((uint16_t)(1 << 12)) // 12 because ADC_ATTEN is 12
+static const float max_voltage = 3.3f;
+static const uint16_t max_adc_raw_value = ((uint16_t)(1 << 12)); // 12 because ADC_ATTEN is 12
 
 
 esp_err_t adc_init()
@@ -34,7 +35,7 @@ esp_err_t adc_init()
 
     adc_oneshot_chan_cfg_t adc_oneshot_chan_cfg =
     {
-        .atten = ADC_ATTEN,         // 11 is deprecated according to documentation
+        .atten = ADC_ATTEN,
         .bitwidth = ADC_BITWIDTH    // Values to read between 0 - 4095
     };
 
@@ -53,7 +54,7 @@ esp_err_t adc_init()
 esp_err_t adc_potentiometer_read_voltage(float *voltage)
 {
 
-    uint16_t potentiometer_raw_value = 0;
+    int potentiometer_raw_value = 0;    // adc_oneshot_read requires int!
     esp_err_t ret = adc_oneshot_read(adc_oneshot_unit_handle, ADC_CHANNEL, &potentiometer_raw_value);
     if (ret != ESP_OK)
     {
