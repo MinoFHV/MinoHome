@@ -1,6 +1,7 @@
 // Implementation according to datasheet: https://aqicn.org/air/sensor/spec/asair-dht20.pdf
 
 #include "dht20.h"
+#include "i2c_init.h"
 
 #include "driver/i2c_master.h"
 #include "esp_log.h"
@@ -10,19 +11,14 @@
 #include <stdio.h>
 
 
-#define TEMP_HUMID_SENSOR_GPIO_SCL  9
-#define TEMP_HUMID_SENSOR_GPIO_SDA  8
-
 #define DHT20_ADDR                  0x38
 #define DHT20_CRC_POLYNOMIAL        0x31
 #define DHT20_SCALE_FACTOR_F        ((float)(1 << 20)) // 2^20
 
-#define I2C_MASTER_FREQ_HZ          100000 // 100kHz, no minimum SCL frequency required since interrface contains completely state logic according to datasheet
-#define I2C_BUS_PORT                0
+#define DHT20_I2C_MASTER_FREQ_HZ          100000 // 100kHz, no minimum SCL frequency required since interrface contains completely state logic according to datasheet
 
-static char *TAG_DHT20 = "DHT20 SENSOR";
 
-static i2c_master_bus_handle_t i2c_bus_handle = NULL;
+static const char *TAG_DHT20 = "DHT20";
 static i2c_master_dev_handle_t i2c_dev_handle = NULL;
 
 
@@ -92,31 +88,15 @@ esp_err_t dht20_read_temperature_and_humidity(float *temperature, float *humidit
 esp_err_t dht20_init(void)
 {
 
-    i2c_master_bus_config_t i2c_master_bus_config = {
-        .clk_source = I2C_CLK_SRC_DEFAULT,
-        .i2c_port = I2C_BUS_PORT,
-        .scl_io_num = TEMP_HUMID_SENSOR_GPIO_SCL,
-        .sda_io_num = TEMP_HUMID_SENSOR_GPIO_SDA,
-        .glitch_ignore_cnt = 7,
-        .flags.enable_internal_pullup = true,
-    };
-
-    ESP_LOGI(TAG_DHT20, "Initializing I2C bus...");
-    esp_err_t ret = i2c_new_master_bus(&i2c_master_bus_config, &i2c_bus_handle);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG_DHT20, "i2c_new_master_bus failed: %s", esp_err_to_name(ret));
-        return ret;
-    }
-
     i2c_device_config_t i2c_device_config =
     {
         .dev_addr_length = I2C_ADDR_BIT_LEN_7,
         .device_address = DHT20_ADDR,
-        .scl_speed_hz = I2C_MASTER_FREQ_HZ
+        .scl_speed_hz = DHT20_I2C_MASTER_FREQ_HZ
     };
 
     ESP_LOGI(TAG_DHT20, "Adding DHT20 device to I2C bus...");
-    ret = i2c_master_bus_add_device(i2c_bus_handle, &i2c_device_config, &i2c_dev_handle);
+    esp_err_t ret = i2c_master_bus_add_device(get_i2c_master_bus_handle(), &i2c_device_config, &i2c_dev_handle);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG_DHT20, "i2c_master_bus_add_device failed: %s", esp_err_to_name(ret));
         return ret;

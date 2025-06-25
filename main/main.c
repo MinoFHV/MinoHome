@@ -11,6 +11,7 @@
 // Custom Includes + Implementations
 #include "my_mqtt.h"
 #include "my_wifi.h"
+#include "i2c_init.h"
 #include "dht20.h"
 #include "potentiometer.h"
 
@@ -27,7 +28,10 @@ void app_main()
     // Init MQTT
     mqtt_init();
 
-    // Init I2C
+    // Init I2C Bus
+    i2c_bus_init();
+
+    // Init DHT20
     dht20_init();
 
     // Init ADC

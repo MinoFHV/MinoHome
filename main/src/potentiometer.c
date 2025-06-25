@@ -11,8 +11,9 @@
 #define ADC_CHANNEL     ADC_CHANNEL_0
 
 
-static char *TAG = "ADC";
+static const char *TAG = "ADC";
 static adc_oneshot_unit_handle_t adc_oneshot_unit_handle;
+
 static const float max_voltage = 3.3f;
 static const uint16_t max_adc_raw_value = ((uint16_t)(1 << 12)); // 12 because ADC_ATTEN is 12
 
