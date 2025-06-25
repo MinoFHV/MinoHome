@@ -1,6 +1,7 @@
 idf_component_register(
     SRCS
         "main.c"
+        "./src/led_alive.c"
         "./src/my_mqtt.c"
         "./src/my_wifi.c"
         "./src/i2c_init.c"

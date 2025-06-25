@@ -1,6 +1,7 @@
 .devcontainer/
 .vscode/
 build/
+managed_components/
 
 homeassistant/*
 !homeassistant/
@@ -10,6 +11,7 @@ homeassistant/*
 !homeassistant/mqtt_sensors.yaml
 !homeassistant/scenes.yaml
 !homeassistant/scripts.yaml
+!homeassistant/template_sensors.yaml
 
 mosquitto/*
 !mosquitto/config/
@@ -19,6 +21,7 @@ mosquitto/data/mosquitto.db
 !mosquitto/log/
 mosquitto/log/mosquitto.log
 
+dependencies.lock
 sdkconfig*
 sdkconfig.ci
 sdkconfig.old

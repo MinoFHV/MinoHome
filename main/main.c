@@ -9,6 +9,7 @@
 #include <stdio.h>
 
 // Custom Includes + Implementations
+#include "led_alive.h"
 #include "my_mqtt.h"
 #include "my_wifi.h"
 #include "i2c_init.h"
@@ -18,6 +19,10 @@
 
 void app_main()
 {
+
+    // Init RGB LED to signify program is alive
+    led_init();
+    xTaskCreate(led_program_alive_task, "led_program_alive_task", 2048, NULL, 0, NULL);
 
     // Flash NVS to store WiFi Configuration data
     nvs_flash_init();
@@ -63,7 +68,7 @@ void app_main()
         sendMQTTpayload("home/esp32/poti_voltage", &potentiometer_voltage, format_float);
         //sendMQTTpayload("home/esp32/lightsensor", &bh1750_lux, format_float);
 
-        vTaskDelay(pdMS_TO_TICKS(5000));
+        vTaskDelay(pdMS_TO_TICKS(800));
     }
 
 }

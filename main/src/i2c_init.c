@@ -6,7 +6,7 @@
 
 
 #define I2C_GPIO_SCL    9
-#define I2C_GPIO_SDA    8
+#define I2C_GPIO_SDA    7
 
 #define I2C_BUS_PORT    0
 
