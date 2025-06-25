@@ -11,7 +11,7 @@
 // Custom Includes + Implementations
 #include "my_mqtt.h"
 #include "my_wifi.h"
-
+#include "dht20.h"
 
 void app_main()
 {
@@ -26,16 +26,21 @@ void app_main()
     // Init MQTT
     mqtt_init();
 
-    // Testing Area
-    
+    // Init I2C
+    dht20_init();
 
+    float dht20_temp = 0.0f;
+    float dht20_humid = 0.0f;
+
+    // Testing Area
     while (1)
     {
-        uint32_t r = esp_random();
-        float scaled = (float)r / UINT32_MAX;
-        float fakeTemp = 20.0f + scaled * (25.0f - 20.0f);
 
-        sendMQTTpayload("home/esp32/temperature", &fakeTemp, format_float);
+        dht20_read_temperature_and_humidity(&dht20_temp, &dht20_humid);
+
+        sendMQTTpayload("home/esp32/temperature", &dht20_temp, format_float);
+        sendMQTTpayload("home/esp32/humidity", &dht20_humid, format_float);
+
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 

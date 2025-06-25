@@ -1,0 +1,127 @@
+// Implementation according to datasheet: https://aqicn.org/air/sensor/spec/asair-dht20.pdf
+
+#include "dht20.h"
+
+#include "driver/i2c_master.h"
+#include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
+#include <stdio.h>
+
+
+#define TEMP_HUMID_SENSOR_GPIO_SCL  9
+#define TEMP_HUMID_SENSOR_GPIO_SDA  8
+
+#define DHT20_ADDR                  0x38
+#define DHT20_CRC_POLYNOMIAL        0x31
+#define DHT20_SCALE_FACTOR_F        ((float)(1 << 20)) // 2^20
+
+#define I2C_MASTER_FREQ_HZ          100000 // 100kHz, no minimum SCL frequency required since interrface contains completely state logic according to datasheet
+#define I2C_BUS_PORT                0
+
+static char *TAG_DHT20 = "DHT20 SENSOR";
+
+static i2c_master_bus_handle_t i2c_bus_handle = NULL;
+static i2c_master_dev_handle_t i2c_dev_handle = NULL;
+
+
+// CRC8 Calculation
+static uint8_t dht20_crc8_check(const uint8_t *data, uint8_t len)
+{
+
+    uint8_t crc = 0xFF;
+    for (uint8_t i = 0; i < len; ++i)
+    {
+        crc ^= data[i];
+        for (uint8_t j = 0; j < 8; ++j)
+        {
+            crc = (crc & 0x80) ? (crc << 1) ^ DHT20_CRC_POLYNOMIAL : (crc << 1);
+        }
+    }
+
+    return crc;
+
+}
+
+// Trigger measurement
+static esp_err_t dht20_start_measurement()
+{
+
+    uint8_t commands[] = {0xAC, 0x33, 0x00}; // AC = Trigger Measure, Command Parameters: 0x33 and 0x00
+    return i2c_master_transmit(i2c_dev_handle, commands, sizeof(commands), pdMS_TO_TICKS(100));
+
+}
+
+static esp_err_t dht20_read_data(uint8_t *data, uint8_t len)
+{
+    return i2c_master_receive(i2c_dev_handle, data, len, pdMS_TO_TICKS(100));
+}
+
+// Algorithm to read out temperature and humidity
+esp_err_t dht20_read_temperature_and_humidity(float *temperature, float *humidity)
+{
+
+    esp_err_t ret = dht20_start_measurement();
+    if (ret != ESP_OK) return ret;
+
+    vTaskDelay(pdMS_TO_TICKS(100)); // According to datasheet, wait > 80ms
+
+    uint8_t data[7];
+    ret = dht20_read_data(data, 7);
+    if (ret != ESP_OK) return ret;
+
+    if (dht20_crc8_check(data, 6) != data[6])
+    {
+        ESP_LOGE(TAG_DHT20, "CRC Check failed!");
+        return ESP_ERR_INVALID_CRC;
+    }
+
+    // Parse data from uint32_t to float
+    uint32_t raw_humidity = ((uint32_t)(data[1]) << 12) | ((uint32_t)(data[2]) << 4) | ((data[3] >> 4) & 0x0F);
+    uint32_t raw_temperature = (((uint32_t)(data[3] & 0x0F)) << 16) | ((uint32_t)(data[4]) << 8) | data[5];
+
+    *humidity = (raw_humidity * 100.0f) / DHT20_SCALE_FACTOR_F;
+    *temperature = ((raw_temperature * 200.0f) / DHT20_SCALE_FACTOR_F) - 50.0f;
+
+    return ESP_OK;
+
+}
+
+// For Temperature and Humidity Sensor
+void dht20_init(void)
+{
+
+    i2c_master_bus_config_t i2c_master_bus_config = {
+        .clk_source = I2C_CLK_SRC_DEFAULT,
+        .i2c_port = I2C_BUS_PORT,
+        .scl_io_num = TEMP_HUMID_SENSOR_GPIO_SCL,
+        .sda_io_num = TEMP_HUMID_SENSOR_GPIO_SDA,
+        .glitch_ignore_cnt = 7,
+        .flags.enable_internal_pullup = true,
+    };
+
+    ESP_LOGI(TAG_DHT20, "Initializing I2C bus...");
+    esp_err_t err = i2c_new_master_bus(&i2c_master_bus_config, &i2c_bus_handle);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG_DHT20, "i2c_new_master_bus failed: %s", esp_err_to_name(err));
+        return;
+    }
+
+    i2c_device_config_t i2c_device_config =
+    {
+        .dev_addr_length = I2C_ADDR_BIT_LEN_7,
+        .device_address = DHT20_ADDR,
+        .scl_speed_hz = I2C_MASTER_FREQ_HZ
+    };
+
+    ESP_LOGI(TAG_DHT20, "Adding DHT20 device to I2C bus...");
+    err = i2c_master_bus_add_device(i2c_bus_handle, &i2c_device_config, &i2c_dev_handle);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG_DHT20, "i2c_master_bus_add_device failed: %s", esp_err_to_name(err));
+        return;
+    }
+
+    ESP_LOGI(TAG_DHT20, "I2C initialized!");
+
+}

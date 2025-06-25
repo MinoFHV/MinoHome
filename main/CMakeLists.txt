@@ -3,6 +3,7 @@ idf_component_register(
         "main.c"
         "./src/my_mqtt.c"
         "./src/my_wifi.c"
-    PRIV_REQUIRES spi_flash mqtt esp_wifi nvs_flash
+        "./src/dht20.c"
+    PRIV_REQUIRES spi_flash mqtt esp_wifi nvs_flash driver
     INCLUDE_DIRS "./includes"
 )
