@@ -38,7 +38,12 @@ int format_float(char *buf, size_t buf_len, const void *value) {
     return snprintf(buf, buf_len, "%.2f", f);
 }
 
-//Redo: No int in embedded systems! Only uint32_t or some such
+
+int format_uint8(char *buf, size_t buf_len, const void *value) {
+    uint8_t u = *(const uint8_t *)value;
+    return snprintf(buf, buf_len, "%u", u);
+}
+
 int format_uint16(char *buf, size_t buf_len, const void *value) {
     uint16_t u = *(const uint16_t *)value;
     return snprintf(buf, buf_len, "%u", u);
