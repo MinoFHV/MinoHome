@@ -20,6 +20,9 @@ views:
               - type: entity
                 entity: sensor.esp32_poti_voltage_card
                 name: Voltage
+              - type: entity
+                entity: sensor.esp32_light
+                name: Light
 
           # Row 2: Graphs for those values
           - type: horizontal-stack
@@ -42,6 +45,12 @@ views:
                 refresh_interval: 1
                 entities:
                   - sensor.esp32_poti_voltage
+              - type: history-graph
+                title: Light (lx)
+                hours_to_show: 0.25
+                refresh_interval: 1
+                entities:
+                  - sensor.esp32_light
 
           # Row 3: CO2, Formaldehyde, Light values
           - type: horizontal-stack
@@ -53,8 +62,23 @@ views:
                 entity: sensor.esp32_formaldehyde
                 name: Formaldehyde
               - type: entity
-                entity: sensor.esp32_light
-                name: Light
+                entity: sensor.esp32_tvoc
+                name: TVOC
+              - type: gauge
+                entity: sensor.esp32_airquality
+                name: Air Quality Level
+                needle: true
+                min: 1
+                max: 4
+                segments:
+                  - from: 1
+                    color: "#009929"
+                  - from: 1.75
+                    color: "#c9c900"
+                  - from: 2.5
+                    color: "#c76d00"
+                  - from: 3.25
+                    color: "#a30000"
 
           # Row 4: Their graphs
           - type: horizontal-stack
@@ -66,14 +90,14 @@ views:
                 entities:
                   - sensor.esp32_carbondioxide
               - type: history-graph
-                title: Formaldehyde (ppm)
+                title: Formaldehyde (ppb)
                 hours_to_show: 0.25
                 refresh_interval: 1
                 entities:
                   - sensor.esp32_formaldehyde
               - type: history-graph
-                title: Light (lx)
+                title: TVOC (ppm)
                 hours_to_show: 0.25
                 refresh_interval: 1
                 entities:
-                  - sensor.esp32_light
+                  - sensor.esp32_tvoc

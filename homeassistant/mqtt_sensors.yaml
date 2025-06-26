@@ -26,10 +26,25 @@ sensor:
 
   - name: "ESP32 Formaldehyde"
     state_topic: "home/esp32/formaldehyde"
-    unit_of_measurement: "ppm"
+    unit_of_measurement: "ppb"
     state_class: measurement
     icon: mdi:biohazard
     unique_id: esp32_formaldehyde
+
+  - name: "ESP32 TVOC"
+    state_topic: "home/esp32/tvoc"
+    unit_of_measurement: "ppm"
+    state_class: measurement
+    icon: mdi:biohazard
+    unique_id: esp32_tvoc
+
+  - name: "ESP32 Air Quality"
+    state_topic: "home/esp32/airquality"
+    icon: mdi:air-filter
+    unit_of_measurement: ""
+    state_class: measurement
+    unique_id: esp32_airquality
+    value_template: "{{ value | int }}"
 
   - name: "ESP32 Light"
     state_topic: "home/esp32/lightsensor"
