@@ -11,6 +11,7 @@
 
 #define BH1750_ADDR                  0x5C    // This requires VCC >= 0.7V on ADDR pin, otherwise it'S 0x23 if VCC <= 0.3V
 #define BH1750_CMD_CONT_HIGH_RES     0x10    // 1 lx resolution, continuous measurement (requires 120ms measurement time)
+#define BH1750_DATA_SIZE             2
 
 #define BH1750_I2C_FREQ_HZ           100000
 
@@ -53,8 +54,8 @@ esp_err_t bh1750_init()
 esp_err_t bh1750_read_lux(float *lux)
 {
 
-    uint8_t data[2];
-    esp_err_t ret = i2c_master_receive(bh1750_dev_handle, data, 2, pdMS_TO_TICKS(100));
+    uint8_t data[BH1750_DATA_SIZE];
+    esp_err_t ret = i2c_master_receive(bh1750_dev_handle, data, BH1750_DATA_SIZE, pdMS_TO_TICKS(100));
     if (ret != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to read lux: %s", esp_err_to_name(ret));

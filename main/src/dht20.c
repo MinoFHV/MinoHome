@@ -12,8 +12,9 @@
 #define DHT20_ADDR                  0x38
 #define DHT20_CRC_POLYNOMIAL        0x31
 #define DHT20_SCALE_FACTOR_F        ((float)(1 << 20)) // 2^20
+#define DHT20_DATA_SIZE             7
 
-#define DHT20_I2C_MASTER_FREQ_HZ          100000 // 100kHz, no minimum SCL frequency required since interrface contains completely state logic according to datasheet
+#define DHT20_I2C_MASTER_FREQ_HZ    100000 // 100kHz, no minimum SCL frequency required since interrface contains completely state logic according to datasheet
 
 
 static const char *TAG = "DHT20";
@@ -82,15 +83,15 @@ esp_err_t dht20_read_temperature_and_humidity(float *temperature, float *humidit
 
     vTaskDelay(pdMS_TO_TICKS(100)); // According to datasheet, wait > 80ms
 
-    uint8_t data[7];
-    ret = dht20_read_data(data, 7);
+    uint8_t data[DHT20_DATA_SIZE];
+    ret = dht20_read_data(data, DHT20_DATA_SIZE);
     if (ret != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to read temperature and humidity: %s", esp_err_to_name(ret));
         return ret;
     }
 
-    if (dht20_crc8_check(data, 6) != data[6])
+    if (dht20_crc8_check(data, DHT20_DATA_SIZE - 1) != data[DHT20_DATA_SIZE - 1])
     {
         ESP_LOGE(TAG, "CRC Check failed!");
         return ESP_ERR_INVALID_CRC;
