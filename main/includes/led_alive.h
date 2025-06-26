@@ -2,7 +2,6 @@
 
 #include "esp_err.h"
 
-void led_program_alive_task_start(void *pvParameters);
-// ToDo: LED Task Error (red blinking)
+void led_program_alive_task(void *pvParameters);
 
 esp_err_t led_init();
