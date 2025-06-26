@@ -74,7 +74,7 @@ esp_err_t tvoc_set_active_mode()
         return ESP_FAIL;
     }
 
-    vTaskDelay(pdMS_TO_TICKS(50));
+    vTaskDelay(pdMS_TO_TICKS(120));
     ESP_LOGI(TAG, "Active mode command sent");
     return ESP_OK;
 
