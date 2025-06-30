@@ -52,4 +52,9 @@ void app_main()
     xTaskCreate(tvoc_sensor_measure_and_sendmqtt_task, "tvoc_sensor_measure_and_sendmqtt_task", 4096, NULL, 5, NULL);
     xTaskCreate(adc_potentiometer_sendmqtt_task, "adc_potentiometer_sendmqtt_task", 4096, NULL, 4, NULL);
 
+    // ToDo in the future: Sent up multiple GPIO RGB LEDs that start lighting up when the esp_err_t methods return != ESP_OK
+    // It's assumed that this would be a bit overkill with this project to set up Home Assistant with MQTT connection through an ESP32
+    // But based on the colour code of the RGB LEDs, we could get exact error "messages" during runtime without having to constantly
+    // unplug the UART pins, because USB also runs through UART and I couldn't be motivated to set up JTAG cables for it xP
+
 }
