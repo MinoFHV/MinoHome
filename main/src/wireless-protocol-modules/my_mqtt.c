@@ -1,9 +1,9 @@
+#include "wireless-protocol-modules/my_mqtt.h"
+
 #include "sdkconfig.h"
 
 #include "esp_log.h"
 #include "mqtt_client.h"
-
-#include "my_mqtt.h"
 
 
 static esp_mqtt_client_handle_t mqtt_client = NULL;

@@ -1,9 +1,6 @@
-#include "i2c_init.h"
+#include "wired-protocol-modules/i2c_init.h"
 
-#include "driver/i2c_master.h"
-#include "esp_err.h"
 #include "esp_log.h"
-#include "freertos/semphr.h"
 
 
 #define I2C_GPIO_SCL    9

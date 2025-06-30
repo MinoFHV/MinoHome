@@ -8,17 +8,20 @@
 
 #include <stdio.h>
 
-// Custom Includes + Implementations
-#include "led_alive.h"
+// RGB LED Module
+#include "utils/led_alive.h"
 
-#include "my_mqtt.h"
-#include "my_wifi.h"
+// Wireless Protocol Modules
+#include "wireless-protocol-modules/my_mqtt.h"
+#include "wireless-protocol-modules/my_wifi.h"
 
-#include "i2c_init.h"
-#include "dht20.h"
-#include "bh1750.h"
-#include "potentiometer.h"
-#include "waveshare_tvoc_sensor.h"
+#include "wired-protocol-modules/i2c_init.h"
+#include "wired-protocol-modules/uart_init.h"
+
+#include "sensors/dht20.h"
+#include "sensors/bh1750.h"
+#include "sensors/waveshare_tvoc_sensor.h"
+#include "sensors/potentiometer.h"
 
 void app_main()
 {

@@ -1,8 +1,8 @@
 // Implementation according to datasheet: https://www.mouser.com/datasheet/2/348/bh1750fvi-e-186247.pdf?srsltid=AfmBOopwez9pQj3_ZB2tl0Rf4PjhdBuStoNNZ-NviN33YV-MBm9vYDA8
 
-#include "bh1750.h"
-#include "i2c_init.h"
-#include "my_mqtt.h"
+#include "sensors/bh1750.h"
+#include "wired-protocol-modules/i2c_init.h"
+#include "wireless-protocol-modules/my_mqtt.h"
 
 #include "driver/i2c_master.h"
 #include "esp_log.h"

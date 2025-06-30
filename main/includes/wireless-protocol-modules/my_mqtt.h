@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stddef.h>
+
 typedef int (*formatter_t)(char *buf, size_t buf_len, const void *value);
 
 int format_float(char *buf, size_t buf_len, const void *value);

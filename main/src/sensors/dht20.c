@@ -1,8 +1,8 @@
 // Implementation according to datasheet: https://aqicn.org/air/sensor/spec/asair-dht20.pdf
 
-#include "dht20.h"
-#include "i2c_init.h"
-#include "my_mqtt.h"
+#include "sensors/dht20.h"
+#include "wired-protocol-modules/i2c_init.h"
+#include "wireless-protocol-modules/my_mqtt.h"
 
 #include "driver/i2c_master.h"
 #include "esp_log.h"

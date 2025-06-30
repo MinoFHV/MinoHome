@@ -1,5 +1,5 @@
-#include "potentiometer.h"
-#include "my_mqtt.h"
+#include "sensors/potentiometer.h"
+#include "wireless-protocol-modules/my_mqtt.h"
 
 #include "esp_err.h"
 #include "esp_log.h"
