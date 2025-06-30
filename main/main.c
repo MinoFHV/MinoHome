@@ -40,7 +40,7 @@ void app_main()
     dht20_init();
 
     // Init BH1750
-    // bh1750_init();
+    bh1750_init();
 
     // Init ADC
     adc_init();
@@ -72,20 +72,20 @@ void app_main()
         // ToDo: use FreeRTOS with Semaphores or Queues to avoid I2C Master Bus to be busy when two devices access at the same time
 
         dht20_read_temperature_and_humidity(&dht20_temp, &dht20_humid);
+        bh1750_read_lux(&bh1750_lux);
         adc_potentiometer_read_voltage(&potentiometer_voltage);
-        //bh1750_read_lux(&bh1750_lux);
         read_co2_ch2o_tvoc_airquality(&air_quality, &co2, &ch2o, &tvoc);
 
         sendMQTTpayload("home/esp32/temperature", &dht20_temp, format_float);
         sendMQTTpayload("home/esp32/humidity", &dht20_humid, format_float);
         sendMQTTpayload("home/esp32/poti_voltage", &potentiometer_voltage, format_float);
-        //sendMQTTpayload("home/esp32/lightsensor", &bh1750_lux, format_float);
+        sendMQTTpayload("home/esp32/lightsensor", &bh1750_lux, format_float);
         sendMQTTpayload("home/esp32/carbondioxide", &co2, format_uint16);
         sendMQTTpayload("home/esp32/formaldehyde", &ch2o, format_uint16);
         sendMQTTpayload("home/esp32/tvoc", &tvoc, format_float);
         sendMQTTpayload("home/esp32/airquality", &air_quality, format_uint8);
 
-        vTaskDelay(pdMS_TO_TICKS(800));
+        vTaskDelay(pdMS_TO_TICKS(500));
         
     }
 
