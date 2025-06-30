@@ -1,14 +1,19 @@
 #include "potentiometer.h"
+#include "my_mqtt.h"
 
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_adc/adc_oneshot.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 
 #define ADC_UNIT        ADC_UNIT_1
 #define ADC_ATTEN       ADC_ATTEN_DB_12     // 11 is deprecated, 12 behaves the same as ADC_ATTEN_DB_12
 #define ADC_BITWIDTH    ADC_BITWIDTH_12
 #define ADC_CHANNEL     ADC_CHANNEL_0
+
+#define FREERTOS_TASK_REFRESH_TIME  200     // 200ms should be enough
 
 
 static const char *TAG = "ADC";
@@ -65,5 +70,26 @@ esp_err_t adc_potentiometer_read_voltage(float *voltage)
 
     *voltage = ( ((float) potentiometer_raw_value) / ((float) max_adc_raw_value) ) * max_voltage;
     return ESP_OK;
+
+}
+
+void adc_potentiometer_sendmqtt_task(void *pvParameters)
+{
+
+    // This is to make sure that the task always runs at a fixed interval
+    TickType_t last_wake_time = xTaskGetTickCount();
+    const TickType_t interval = pdMS_TO_TICKS(FREERTOS_TASK_REFRESH_TIME);
+
+    float potentiometer_voltage = 0.0f;
+
+    while (1)
+    {
+
+        adc_potentiometer_read_voltage(&potentiometer_voltage);
+        sendMQTTpayload("home/esp32/poti_voltage", &potentiometer_voltage, format_float);
+
+        vTaskDelayUntil(&last_wake_time, interval);
+
+    }
 
 }

@@ -3,6 +3,8 @@
 #include "esp_event.h"
 #include "esp_log.h"
 #include "esp_wifi.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 #include "my_wifi.h"
 
@@ -71,6 +73,9 @@ void wifi_init_and_connect()
 
     // WiFi Connect
     ESP_ERROR_CHECK(esp_wifi_connect());
+
+    // Wait until WiFi connection is established
+    vTaskDelay(pdMS_TO_TICKS(3000));
 
 }
 

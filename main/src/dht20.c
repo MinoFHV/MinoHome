@@ -2,11 +2,13 @@
 
 #include "dht20.h"
 #include "i2c_init.h"
+#include "my_mqtt.h"
 
 #include "driver/i2c_master.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/semphr.h"
 
 
 #define DHT20_ADDR                  0x38
@@ -15,6 +17,8 @@
 #define DHT20_DATA_SIZE             7
 
 #define DHT20_I2C_MASTER_FREQ_HZ    100000 // 100kHz, no minimum SCL frequency required since interrface contains completely state logic according to datasheet
+
+#define FREERTOS_TASK_REFRESH_TIME  15000 // 15 seconds because such data changes slowly
 
 
 static const char *TAG = "DHT20";
@@ -105,5 +109,35 @@ esp_err_t dht20_read_temperature_and_humidity(float *temperature, float *humidit
     *temperature = ((raw_temperature * 200.0f) / DHT20_SCALE_FACTOR_F) - 50.0f;
 
     return ESP_OK;
+
+}
+
+void dht20_measure_and_sendmqtt_task(void *pvParameters)
+{
+
+    // This is to make sure that the task always runs at a fixed interval
+    TickType_t last_wake_time = xTaskGetTickCount();
+    const TickType_t interval = pdMS_TO_TICKS(FREERTOS_TASK_REFRESH_TIME);
+
+    SemaphoreHandle_t i2c_semaphore = get_i2c_semaphore();
+    float temperature = 0.0f;
+    float humidity = 0.0f;
+
+    while (1)
+    {
+
+        // Locking mechanism to prevent I2C master bus errors during simultaneous access
+        if (xSemaphoreTake(i2c_semaphore, pdMS_TO_TICKS(100) == pdTRUE))
+        {
+            dht20_read_temperature_and_humidity(&temperature, &humidity);
+            xSemaphoreGive(i2c_semaphore);
+        }
+
+        sendMQTTpayload("home/esp32/temperature", &temperature, format_float);
+        sendMQTTpayload("home/esp32/humidity", &humidity, format_float);
+        
+        vTaskDelayUntil(&last_wake_time, interval);
+
+    }
 
 }

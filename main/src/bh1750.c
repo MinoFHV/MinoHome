@@ -2,11 +2,13 @@
 
 #include "bh1750.h"
 #include "i2c_init.h"
+#include "my_mqtt.h"
 
 #include "driver/i2c_master.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/semphr.h"
 
 
 #define BH1750_ADDR                  0x5C    // This requires VCC >= 0.7V on ADDR pin, otherwise it'S 0x23 if VCC <= 0.3V
@@ -14,6 +16,8 @@
 #define BH1750_DATA_SIZE             2
 
 #define BH1750_I2C_FREQ_HZ           100000
+
+#define FREERTOS_TASK_REFRESH_TIME   1000   // 1s, since Light can change quite rapidly in a room
 
 
 static const char *TAG = "BH1750";
@@ -67,5 +71,33 @@ esp_err_t bh1750_read_lux(float *lux)
     *lux = raw_lux / 1.2f;
 
     return ESP_OK;
+
+}
+
+void bh1750_measure_and_sendmqtt_task(void *pvParameters)
+{
+
+    // This is to make sure that the task always runs at a fixed interval
+    TickType_t last_wake_time = xTaskGetTickCount();
+    const TickType_t interval = pdMS_TO_TICKS(FREERTOS_TASK_REFRESH_TIME);
+
+    SemaphoreHandle_t i2c_semaphore = get_i2c_semaphore();
+    float lux = 0.0f;
+
+    while (1)
+    {
+
+        // Locking mechanism to prevent I2C master bus errors during simultaneous access
+        if (xSemaphoreTake(i2c_semaphore, pdMS_TO_TICKS(100) == pdTRUE))
+        {
+            bh1750_read_lux(&lux);
+            xSemaphoreGive(i2c_semaphore);
+        }
+
+        sendMQTTpayload("home/esp32/lightsensor", &lux, format_float);
+        
+        vTaskDelayUntil(&last_wake_time, interval);
+
+    }
 
 }

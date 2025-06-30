@@ -3,6 +3,7 @@
 #include "driver/i2c_master.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "freertos/semphr.h"
 
 
 #define I2C_GPIO_SCL    9
@@ -12,10 +13,12 @@
 
 static const char* TAG = "I2C";
 static i2c_master_bus_handle_t i2c_master_bus_handle = NULL;
+static SemaphoreHandle_t i2c_semaphore = NULL;
 
 esp_err_t i2c_bus_init()
 {
 
+    // Init i2c master bus
     i2c_master_bus_config_t i2c_master_bus_config = {
         .clk_source = I2C_CLK_SRC_DEFAULT,
         .i2c_port = I2C_BUS_PORT,
@@ -32,6 +35,14 @@ esp_err_t i2c_bus_init()
         return ret;
     }
 
+    // Create i2c semaphore
+    i2c_semaphore = xSemaphoreCreateMutex();
+    if (i2c_semaphore == NULL)
+    {
+        ESP_LOGE(TAG, "xSemaphoreCreateMutex failed!");
+        return ESP_FAIL;
+    }
+
     return ESP_OK;
 
 }
@@ -39,4 +50,9 @@ esp_err_t i2c_bus_init()
 i2c_master_bus_handle_t get_i2c_master_bus_handle()
 {
     return i2c_master_bus_handle;
+}
+
+SemaphoreHandle_t get_i2c_semaphore()
+{
+    return i2c_semaphore;
 }

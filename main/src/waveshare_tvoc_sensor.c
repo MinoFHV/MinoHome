@@ -1,6 +1,7 @@
 // Implementation according to datasheet: https://www.waveshare.com/wiki/TVOC_Sensor
 
 #include "waveshare_tvoc_sensor.h"
+#include "my_mqtt.h"
 
 #include "driver/uart.h"
 #include "esp_err.h"
@@ -9,22 +10,24 @@
 #include "freertos/task.h"
 
 
-#define UART_PORT_NUM           UART_NUM_0
-#define UART_BAUD_RATE          115200
-#define UART_TX_PIN             20
-#define UART_RX_PIN             21
-#define UART_BUF_SIZE           128     // ToDo: Change ot 16 or 32 if needed, please test!
+#define UART_PORT_NUM                   UART_NUM_0
+#define UART_BAUD_RATE                  115200
+#define UART_TX_PIN                     20
+#define UART_RX_PIN                     21
+#define UART_BUF_SIZE                   128     // ToDo: Change ot 16 or 32 if needed, please test!
 
-#define TVOC_FRAME_HEADER       0xFE
-#define TVOC_FRAME_FOOTER       0x16
-#define TVOC_FRAME_SIZE         11
+#define TVOC_FRAME_HEADER               0xFE
+#define TVOC_FRAME_FOOTER               0x16
+#define TVOC_FRAME_SIZE                 11
+
+#define FREERTOS_TASK_REFRESH_TIME      10000 // Usually, you'd do 30-60 seconds, but this is just better for the showcase :3
 
 
 static const char *TAG = "TVOC";
 static const uint8_t TVOC_ACTIVE_MODE_CMD[] = {0xFE, 0x00, 0x78, 0x40, 0x00, 0x00, 0x00, 0x00, 0xB8};
 
 
-
+// Maybe should be in its own module, especially if more UART modules would be added, but for now this can stay here :)
 esp_err_t uart_init()
 {
 
@@ -58,7 +61,7 @@ esp_err_t uart_init()
         return ret;
     }
 
-    // 200ms time needed for hardware to initialize UART
+    // around 200ms time needed for hardware to initialize UART
     vTaskDelay(pdMS_TO_TICKS(200));
     return ESP_OK;
 
@@ -74,7 +77,7 @@ esp_err_t tvoc_set_active_mode()
         return ESP_FAIL;
     }
 
-    vTaskDelay(pdMS_TO_TICKS(120));
+    vTaskDelay(pdMS_TO_TICKS(120)); // 120ms required
     ESP_LOGI(TAG, "Active mode command sent");
     return ESP_OK;
 
@@ -131,5 +134,32 @@ tvoc_sensor_uart_status_t read_co2_ch2o_tvoc_airquality(uint8_t *air_quality, ui
     *tvoc = ((response_frame[7] << 8) | response_frame[8]) / 1000.0f;
 
     return SENSOR_OK;
+
+}
+
+void tvoc_sensor_measure_and_sendmqtt_task(void *pvParameters)
+{
+
+    // This is to make sure that the task always runs at a fixed interval
+    TickType_t last_wake_time = xTaskGetTickCount();
+    const TickType_t interval = pdMS_TO_TICKS(FREERTOS_TASK_REFRESH_TIME);
+
+    uint8_t air_quality = 0;
+    uint16_t co2 = 0;
+    uint16_t ch2o = 0;
+    float tvoc = 0;
+
+    while (1)
+    {
+
+        read_co2_ch2o_tvoc_airquality(&air_quality, &co2, &ch2o, &tvoc);
+        sendMQTTpayload("home/esp32/carbondioxide", &co2, format_uint16);
+        sendMQTTpayload("home/esp32/formaldehyde", &ch2o, format_uint16);
+        sendMQTTpayload("home/esp32/tvoc", &tvoc, format_float);
+        sendMQTTpayload("home/esp32/airquality", &air_quality, format_uint8);
+
+        vTaskDelayUntil(&last_wake_time, interval);
+
+    }
 
 }
