@@ -1,4 +1,4 @@
-#include "wired-protocol-modules/uart_init.h"
+#include "wired-protocol-modules/uart.h"
 #include "utils/utils.h"
 
 #include "driver/uart.h"
@@ -39,6 +39,6 @@ esp_err_t uart_init()
 
     // around 200ms time needed for hardware to initialize UART
     vTaskDelay(pdMS_TO_TICKS(200));
-    return ret;
+    return ESP_OK;
 
 }

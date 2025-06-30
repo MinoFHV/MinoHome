@@ -1,4 +1,5 @@
-#include "wired-protocol-modules/i2c_init.h"
+#include "wired-protocol-modules/i2c.h"
+#include "utils/utils.h"
 
 #include "esp_log.h"
 
@@ -12,7 +13,7 @@ static const char* TAG = "I2C";
 static i2c_master_bus_handle_t i2c_master_bus_handle = NULL;
 static SemaphoreHandle_t i2c_semaphore = NULL;
 
-esp_err_t i2c_bus_init()
+esp_err_t i2c_master_bus_init()
 {
 
     // Init i2c master bus
@@ -25,12 +26,11 @@ esp_err_t i2c_bus_init()
         .flags.enable_internal_pullup = true,
     };
 
-    ESP_LOGI(TAG, "Initializing I2C bus...");
-    esp_err_t ret = i2c_new_master_bus(&i2c_master_bus_config, &i2c_master_bus_handle);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "i2c_new_master_bus failed: %s", esp_err_to_name(ret));
-        return ret;
-    }
+    ESP_LOGI(TAG, "Initializing I2C master bus...");
+    esp_err_t ret = check_esp_err(i2c_new_master_bus(&i2c_master_bus_config, &i2c_master_bus_handle), "i2c_new_master_bus", TAG);
+    if (ret != ESP_OK) return ret;
+
+    ESP_LOGI(TAG, "I2C master bus successfully initialized!");
 
     // Create i2c semaphore
     i2c_semaphore = xSemaphoreCreateMutex();

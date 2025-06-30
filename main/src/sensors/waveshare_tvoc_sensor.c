@@ -1,8 +1,8 @@
 // Implementation according to datasheet: https://www.waveshare.com/wiki/TVOC_Sensor
 
 #include "sensors/waveshare_tvoc_sensor.h"
-#include "wireless-protocol-modules/my_mqtt.h"
-#include "wired-protocol-modules/uart_init.h"
+#include "wireless-protocol-modules/mqtt.h"
+#include "wired-protocol-modules/uart.h"
 
 #include "driver/uart.h"
 #include "esp_err.h"
@@ -110,6 +110,7 @@ void tvoc_sensor_measure_and_sendmqtt_task(void *pvParameters)
     {
 
         read_co2_ch2o_tvoc_airquality(&air_quality, &co2, &ch2o, &tvoc);
+
         sendMQTTpayload("home/esp32/carbondioxide", &co2, format_uint16);
         sendMQTTpayload("home/esp32/formaldehyde", &ch2o, format_uint16);
         sendMQTTpayload("home/esp32/tvoc", &tvoc, format_float);

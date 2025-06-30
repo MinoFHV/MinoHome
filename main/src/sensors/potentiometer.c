@@ -1,5 +1,6 @@
 #include "sensors/potentiometer.h"
-#include "wireless-protocol-modules/my_mqtt.h"
+#include "wireless-protocol-modules/mqtt.h"
+#include "utils/utils.h"
 
 #include "esp_err.h"
 #include "esp_log.h"
@@ -32,12 +33,8 @@ esp_err_t adc_init()
         .ulp_mode = ADC_ULP_MODE_DISABLE    // ULP Mode = Ultra Low Power Mode, read data while MCU is in "Deep-Sleep Mode"
     };
 
-    esp_err_t ret = adc_oneshot_new_unit(&adc_oneshot_unit_init_cfg, &adc_oneshot_unit_handle);
-    if (ret != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Error on adc_oneshot_new_unit: %s", esp_err_to_name(ret));
-        return ret;
-    }
+    esp_err_t ret = check_esp_err(adc_oneshot_new_unit(&adc_oneshot_unit_init_cfg, &adc_oneshot_unit_handle), "adc_oneshot_new_unit", TAG);
+    if (ret != ESP_OK) return ret;
 
     adc_oneshot_chan_cfg_t adc_oneshot_chan_cfg =
     {
@@ -45,12 +42,8 @@ esp_err_t adc_init()
         .bitwidth = ADC_BITWIDTH    // Values to read between 0 - 4095
     };
 
-    ret = adc_oneshot_config_channel(adc_oneshot_unit_handle, ADC_CHANNEL, &adc_oneshot_chan_cfg);
-    if (ret != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Error on adc_oneshot_config_channel: %s", esp_err_to_name(ret));
-        return ret;
-    }
+    ret = check_esp_err(adc_oneshot_config_channel(adc_oneshot_unit_handle, ADC_CHANNEL, &adc_oneshot_chan_cfg), "adc_oneshot_config_channel", TAG);
+    if (ret != ESP_OK) return ret;
 
     ESP_LOGI(TAG, "ADC successfully configured!");
     return ESP_OK;
@@ -61,12 +54,8 @@ esp_err_t adc_potentiometer_read_voltage(float *voltage)
 {
 
     int potentiometer_raw_value = 0;    // adc_oneshot_read requires int!
-    esp_err_t ret = adc_oneshot_read(adc_oneshot_unit_handle, ADC_CHANNEL, &potentiometer_raw_value);
-    if (ret != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Error on adc_oneshot_read: %s", esp_err_to_name(ret));
-        return ret;
-    }
+    esp_err_t ret = check_esp_err(adc_oneshot_read(adc_oneshot_unit_handle, ADC_CHANNEL, &potentiometer_raw_value), "adc_oneshot_read", TAG);
+    if (ret != ESP_OK) return ret;
 
     *voltage = ( ((float) potentiometer_raw_value) / ((float) max_adc_raw_value) ) * max_voltage;
     return ESP_OK;

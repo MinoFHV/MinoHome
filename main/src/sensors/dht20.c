@@ -1,8 +1,9 @@
 // Implementation according to datasheet: https://aqicn.org/air/sensor/spec/asair-dht20.pdf
 
 #include "sensors/dht20.h"
-#include "wired-protocol-modules/i2c_init.h"
-#include "wireless-protocol-modules/my_mqtt.h"
+#include "wired-protocol-modules/i2c.h"
+#include "wireless-protocol-modules/mqtt.h"
+#include "utils/utils.h"
 
 #include "driver/i2c_master.h"
 #include "esp_log.h"
@@ -46,13 +47,17 @@ static esp_err_t dht20_start_measurement()
 {
 
     uint8_t commands[] = {0xAC, 0x33, 0x00}; // AC = Trigger Measure, Command Parameters: 0x33 and 0x00
-    return i2c_master_transmit(dht20_dev_handle, commands, sizeof(commands), pdMS_TO_TICKS(100));
+    esp_err_t ret = check_esp_err(i2c_master_transmit(dht20_dev_handle, commands, sizeof(commands), pdMS_TO_TICKS(100)), "i2c_master_transmit", TAG);
+    return ret;
 
 }
 
 static esp_err_t dht20_read_data(uint8_t *data, uint8_t len)
 {
-    return i2c_master_receive(dht20_dev_handle, data, len, pdMS_TO_TICKS(100));
+
+    esp_err_t ret = check_esp_err(i2c_master_receive(dht20_dev_handle, data, len, pdMS_TO_TICKS(100)), "i2c_master_receive", TAG);
+    return ret;
+
 }
 
 
@@ -67,12 +72,8 @@ esp_err_t dht20_init(void)
     };
 
     ESP_LOGI(TAG, "Adding DHT20 device to I2C bus...");
-    esp_err_t ret = i2c_master_bus_add_device(get_i2c_master_bus_handle(), &i2c_device_config, &dht20_dev_handle);
-    if (ret != ESP_OK)
-    {
-        ESP_LOGE(TAG, "i2c_master_bus_add_device failed: %s", esp_err_to_name(ret));
-        return ret;
-    }
+    esp_err_t ret = check_esp_err(i2c_master_bus_add_device(get_i2c_master_bus_handle(), &i2c_device_config, &dht20_dev_handle), "i2c_master_bus_add_device", TAG);
+    if (ret != ESP_OK) return ret;
 
     ESP_LOGI(TAG, "DHT20 device initialized!");
     return ESP_OK;
@@ -88,12 +89,8 @@ esp_err_t dht20_read_temperature_and_humidity(float *temperature, float *humidit
     vTaskDelay(pdMS_TO_TICKS(100)); // According to datasheet, wait > 80ms
 
     uint8_t data[DHT20_DATA_SIZE];
-    ret = dht20_read_data(data, DHT20_DATA_SIZE);
-    if (ret != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Failed to read temperature and humidity: %s", esp_err_to_name(ret));
-        return ret;
-    }
+    ret = check_esp_err(dht20_read_data(data, DHT20_DATA_SIZE), "dht20_read_data", TAG);
+    if (ret != ESP_OK) return ret;
 
     if (dht20_crc8_check(data, DHT20_DATA_SIZE - 1) != data[DHT20_DATA_SIZE - 1])
     {

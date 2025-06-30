@@ -1,12 +1,11 @@
 idf_component_register(
     SRCS
         "main.c"
-        "./src/utils/led_alive.c"
         "./src/utils/utils.c"
-        "./src/wireless-protocol-modules/my_mqtt.c"
-        "./src/wireless-protocol-modules/my_wifi.c"
-        "./src/wired-protocol-modules/i2c_init.c"
-        "./src/wired-protocol-modules/uart_init.c"
+        "./src/wireless-protocol-modules/mqtt.c"
+        "./src/wireless-protocol-modules/wifi.c"
+        "./src/wired-protocol-modules/i2c.c"
+        "./src/wired-protocol-modules/uart.c"
         "./src/sensors/dht20.c"
         "./src/sensors/bh1750.c"
         "./src/sensors/waveshare_tvoc_sensor.c"

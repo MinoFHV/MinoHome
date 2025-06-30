@@ -1,4 +1,4 @@
-#include "wireless-protocol-modules/my_wifi.h"
+#include "wireless-protocol-modules/wifi.h"
 #include "utils/utils.h"
 
 #include "sdkconfig.h"
@@ -8,34 +8,71 @@
 #include "esp_wifi.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/event_groups.h"
+
+
+#define WIFI_CONNECTED_BIT      BIT0
+#define WIFI_FAIL_BIT           BIT1
+#define WIFI_MAX_RETRY 5
 
 
 static const char *TAG = "WIFI";
+static EventGroupHandle_t wifi_event_group;
+static uint8_t retry_num = 0;
+
 
 static void wifi_event_handler(void *event_handler_arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
 
-    switch (event_id)
+    if (event_base == WIFI_EVENT)
     {
-        case WIFI_EVENT_STA_START:
-            ESP_LOGI(TAG, "WiFi connecting...");
-            break;
-        case WIFI_EVENT_STA_CONNECTED:
-            ESP_LOGI(TAG, "WiFi connected!");
-            break;
-        case WIFI_EVENT_STA_DISCONNECTED:
-            ESP_LOGI(TAG, "WiFi lost connection...");
-            wifi_event_sta_disconnected_t *event = (wifi_event_sta_disconnected_t *)event_data;
-            ESP_LOGW(TAG, "WiFi lost connection. Reason: %d", event->reason);
-            break;
-        default:
-            break;
+
+        switch (event_id)
+        {
+
+            case WIFI_EVENT_STA_START:
+                ESP_LOGI(TAG, "WiFi connecting...");
+                break;
+            case WIFI_EVENT_STA_CONNECTED:
+                ESP_LOGI(TAG, "WiFi connected!");
+                retry_num = 0;
+                break;
+            case WIFI_EVENT_STA_DISCONNECTED:
+
+                if (retry_num < WIFI_MAX_RETRY)
+                {
+                    ESP_LOGW(TAG, "WiFi disconnected, trying to reconnect...");
+                    esp_wifi_connect();
+                    retry_num++;
+                    ESP_LOGI(TAG, "Retrying to connect to WiFi (%d/%d)", retry_num, WIFI_MAX_RETRY);
+                }
+                else
+                {
+                    xEventGroupSetBits(wifi_event_group, WIFI_FAIL_BIT);
+                }
+
+                break;
+
+            default:
+                break;
+
+        }
+
+    } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
+    
+    {
+        ESP_LOGI(TAG, "Got IP address");
+        retry_num = 0;
+        xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
+
     }
 
 }
 
 esp_err_t wifi_init_and_connect()
 {
+
+    wifi_event_group = xEventGroupCreate();
 
     // Remove WiFi Connection upon reboot
     wifi_ap_record_t ap_info;
@@ -99,7 +136,22 @@ esp_err_t wifi_init_and_connect()
     if (ret != ESP_OK) return ret;
 
     // Wait until WiFi connection is established
-    vTaskDelay(pdMS_TO_TICKS(3000));
+    EventBits_t bits = xEventGroupWaitBits(wifi_event_group,
+                                           WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
+                                           pdTRUE,    // clear bits on exit
+                                           pdFALSE,   // wait for any bit
+                                           pdMS_TO_TICKS(10000));  // 10 seconds timeout
+
+    if (bits & WIFI_CONNECTED_BIT) {
+        ESP_LOGI(TAG, "WiFi connected successfully");
+        return ESP_OK;
+    } else if (bits & WIFI_FAIL_BIT) {
+        ESP_LOGE(TAG, "Failed to connect to WiFi");
+        return ESP_FAIL;
+    } else {
+        ESP_LOGE(TAG, "WiFi connection timed out");
+        return ESP_ERR_TIMEOUT;
+    }
 
     return ESP_OK;
 
