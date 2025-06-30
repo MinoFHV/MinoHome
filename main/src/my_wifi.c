@@ -30,8 +30,14 @@ static void wifi_event_handler(void *event_handler_arg, esp_event_base_t event_b
 
 }
 
+// ToDo, return esp_err_t !
 void wifi_init_and_connect()
 {
+
+    // Reset existing WiFi state (in case of reboot)
+    esp_wifi_disconnect();
+    esp_wifi_stop();
+    esp_wifi_deinit();
 
     // WiFi Init
     ESP_ERROR_CHECK(esp_netif_init());
