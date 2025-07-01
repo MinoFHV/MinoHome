@@ -41,10 +41,12 @@ static void wifi_event_handler(void *event_handler_arg, esp_event_base_t event_b
 
                 if (retry_num < WIFI_MAX_RETRY)
                 {
+
                     ESP_LOGW(TAG, "WiFi disconnected, trying to reconnect...");
                     esp_wifi_connect();
                     retry_num++;
                     ESP_LOGI(TAG, "Retrying to connect to WiFi (%d/%d)", retry_num, WIFI_MAX_RETRY);
+
                 }
                 else
                 {
@@ -58,9 +60,10 @@ static void wifi_event_handler(void *event_handler_arg, esp_event_base_t event_b
 
         }
 
-    } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
-    
+    }
+    else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
     {
+
         ESP_LOGI(TAG, "Got IP address");
         retry_num = 0;
         xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
@@ -136,19 +139,20 @@ esp_err_t wifi_init_and_connect()
     if (ret != ESP_OK) return ret;
 
     // Wait until WiFi connection is established
-    EventBits_t bits = xEventGroupWaitBits(wifi_event_group,
-                                           WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
-                                           pdTRUE,    // clear bits on exit
-                                           pdFALSE,   // wait for any bit
-                                           pdMS_TO_TICKS(10000));  // 10 seconds timeout
+    EventBits_t bits = xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT | WIFI_FAIL_BIT, pdTRUE, pdFALSE, pdMS_TO_TICKS(10000));  // 10 seconds timeout
 
-    if (bits & WIFI_CONNECTED_BIT) {
+    if (bits & WIFI_CONNECTED_BIT)
+    {
         ESP_LOGI(TAG, "WiFi connected successfully");
         return ESP_OK;
-    } else if (bits & WIFI_FAIL_BIT) {
+    }
+    else if (bits & WIFI_FAIL_BIT)
+    {
         ESP_LOGE(TAG, "Failed to connect to WiFi");
         return ESP_FAIL;
-    } else {
+    }
+    else
+    {
         ESP_LOGE(TAG, "WiFi connection timed out");
         return ESP_ERR_TIMEOUT;
     }

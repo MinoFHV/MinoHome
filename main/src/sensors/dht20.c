@@ -16,6 +16,7 @@
 #define DHT20_CRC_POLYNOMIAL        0x31
 #define DHT20_SCALE_FACTOR_F        ((float)(1 << 20)) // 2^20
 #define DHT20_DATA_SIZE             7
+#define DHT20_MEASURE_CMD_LEN       3
 
 #define DHT20_I2C_MASTER_FREQ_HZ    100000 // 100kHz, no minimum SCL frequency required since interrface contains completely state logic according to datasheet
 
@@ -46,8 +47,8 @@ static uint8_t dht20_crc8_check(const uint8_t *data, uint8_t len)
 static esp_err_t dht20_start_measurement()
 {
 
-    uint8_t commands[] = {0xAC, 0x33, 0x00}; // AC = Trigger Measure, Command Parameters: 0x33 and 0x00
-    esp_err_t ret = check_esp_err(i2c_master_transmit(dht20_dev_handle, commands, sizeof(commands), pdMS_TO_TICKS(100)), "i2c_master_transmit", TAG);
+    uint8_t commands[DHT20_MEASURE_CMD_LEN] = {0xAC, 0x33, 0x00}; // AC = Trigger Measure, Command Parameters: 0x33 and 0x00
+    esp_err_t ret = check_esp_err(i2c_master_transmit(dht20_dev_handle, commands, DHT20_MEASURE_CMD_LEN, pdMS_TO_TICKS(100)), "i2c_master_transmit", TAG);
     return ret;
 
 }

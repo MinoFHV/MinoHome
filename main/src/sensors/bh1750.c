@@ -13,7 +13,7 @@
 
 
 #define BH1750_ADDR                  0x5C    // This requires VCC >= 0.7V on ADDR pin, otherwise it'S 0x23 if VCC <= 0.3V
-#define BH1750_CMD_CONT_HIGH_RES     0x10    // 1 lx resolution, continuous measurement (requires 120ms measurement time)
+#define BH1750_CMD_CONT_HIGH_RES     0x11    // 1 lx resolution with high precision for under 10 lx, continuous measurement (requires 120ms measurement time)
 #define BH1750_DATA_SIZE             2
 
 #define BH1750_I2C_FREQ_HZ           100000

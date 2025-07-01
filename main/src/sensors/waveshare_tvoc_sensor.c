@@ -16,19 +16,20 @@
 #define TVOC_FRAME_HEADER               0xFE
 #define TVOC_FRAME_FOOTER               0x16
 #define TVOC_FRAME_SIZE                 11
+#define TVOC_ACTIVE_MODE_CMD_LEN        9
 
 #define FREERTOS_TASK_REFRESH_TIME      10000 // Usually, you'd do 30-60 seconds, but this is just better for the showcase :3
 
 
 static const char *TAG = "TVOC";
-static const uint8_t TVOC_ACTIVE_MODE_CMD[] = {0xFE, 0x00, 0x78, 0x40, 0x00, 0x00, 0x00, 0x00, 0xB8};
+static const uint8_t TVOC_ACTIVE_MODE_CMD[TVOC_ACTIVE_MODE_CMD_LEN] = {0xFE, 0x00, 0x78, 0x40, 0x00, 0x00, 0x00, 0x00, 0xB8};
 
 
 esp_err_t tvoc_set_active_mode()
 {
 
-    int bytes_written = uart_write_bytes(TVOC_UART_PORT_NUM, (const char *)TVOC_ACTIVE_MODE_CMD, sizeof(TVOC_ACTIVE_MODE_CMD));
-    if (bytes_written != sizeof(TVOC_ACTIVE_MODE_CMD))
+    int bytes_written = uart_write_bytes(TVOC_UART_PORT_NUM, (const char *)TVOC_ACTIVE_MODE_CMD, TVOC_ACTIVE_MODE_CMD_LEN);
+    if (bytes_written != TVOC_ACTIVE_MODE_CMD_LEN)
     {
         ESP_LOGE(TAG, "Failed to send active mode command");
         return ESP_FAIL;
