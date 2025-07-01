@@ -73,6 +73,8 @@ esp_err_t mqtt_init()
     {
         .broker.address.uri = CONFIG_MQTT_BROKER_URI,
         .broker.address.port = CONFIG_MQTT_BROKER_PORT,
+        .credentials.username = CONFIG_MQTT_BROKER_USERNAME,
+        .credentials.authentication.password = CONFIG_MQTT_BROKER_PASSWORD
     };
 
     mqtt_client = esp_mqtt_client_init(&config);

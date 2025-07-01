@@ -16,4 +16,12 @@ menu "WiFi and MQTT Settings"
         int "MQTT Broker Port"
         default "1883"
 
+    config MQTT_BROKER_USERNAME
+        string "MQTT Broker Username"
+        default "username"
+        
+    config MQTT_BROKER_PASSWORD
+        string "MQTT Broker Password"
+        default "password"
+
 endmenu
