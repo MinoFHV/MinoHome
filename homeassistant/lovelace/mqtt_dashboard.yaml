@@ -18,7 +18,7 @@ views:
                 entity: sensor.esp32_humidity
                 name: Humidity
               - type: entity
-                entity: sensor.esp32_poti_voltage_card
+                entity: sensor.esp32_potentiometer_voltage_card
                 name: Potentiometer Voltage
               - type: entity
                 entity: sensor.esp32_light
