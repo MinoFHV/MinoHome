@@ -19,7 +19,7 @@ views:
                 name: Humidity
               - type: entity
                 entity: sensor.esp32_poti_voltage_card
-                name: Voltage
+                name: Potentiometer Voltage
               - type: entity
                 entity: sensor.esp32_light
                 name: Light
@@ -40,7 +40,7 @@ views:
                 entities:
                   - sensor.esp32_humidity
               - type: history-graph
-                title: Voltage (V)
+                title: Potentiometer Voltage (V)
                 hours_to_show: 0.25
                 refresh_interval: 1
                 entities:
@@ -56,7 +56,7 @@ views:
           - type: horizontal-stack
             cards:
               - type: entity
-                entity: sensor.esp32_carbondioxide
+                entity: sensor.esp32_co2
                 name: CO2
               - type: entity
                 entity: sensor.esp32_formaldehyde
@@ -88,7 +88,7 @@ views:
                 hours_to_show: 0.25
                 refresh_interval: 1
                 entities:
-                  - sensor.esp32_carbondioxide
+                  - sensor.esp32_co2
               - type: history-graph
                 title: Formaldehyde (ppb)
                 hours_to_show: 0.25
