@@ -10,7 +10,7 @@ menu "WiFi and MQTT Settings"
 
     config MQTT_BROKER_URI
         string "MQTT Broker URI"
-        default "mqtt://<broker-ip>"
+        default "mqtt://<Your-PC-IP-Address>"
 
     config MQTT_BROKER_PORT
         int "MQTT Broker Port"
