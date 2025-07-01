@@ -10,7 +10,7 @@ The goal is to:
   - Formaldehyde
   - TVOC
   - Air Quality
-  - Ambiant Light
+  - Ambient Light
   - Potentiometer Voltage
 - Have the MQTT Payloads be interpreted and displayed on Home Assistant
 
@@ -38,7 +38,7 @@ The equipment used were:
 
 * Go to a terminal, go to the root folder of this project, and write
 ```
-docker-compose -f ./compose.yaml up -d
+docker-compose -f ./compose.yml up -d
 ```
 
 This will start Home Assistant and Mosquitto. Go to localhost:8123 on your browser and create an account.  
