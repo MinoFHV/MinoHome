@@ -1,4 +1,5 @@
 // Implementation according to datasheet: https://www.waveshare.com/wiki/TVOC_Sensor
+// The TVOC Sensor requires some warmup time up until 120 seconds per specification, so please wait until the data arrives on Home Assistant
 
 #include "sensors/waveshare_tvoc_sensor.h"
 #include "wireless-protocol-modules/mqtt.h"
