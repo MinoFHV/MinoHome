@@ -68,6 +68,8 @@ and type in the relevant information:
 - WiFi Password: No explanation needed
 - MQTT Broker URI: Format is "mqtt://Your-PC-IP-Address"
 - MQTT Broker Port: 1883
+- MQTT Broker Username: leave empty
+- MQTT Broker Password: leave empty
 
 Make sure that you click "Save"!  
   
