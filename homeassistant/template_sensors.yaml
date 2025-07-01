@@ -1,5 +1,5 @@
 - sensor:
     - name: "ESP32 Potentiometer Voltage Card"
       state: "{{ '%.2f' | format(states('sensor.esp32_poti_voltage') | float(0)) }} V"
-      unique_id: esp32_poti_voltage_card
+      unique_id: esp32_potentiometer_voltage_card
       icon: mdi:lightning-bolt
