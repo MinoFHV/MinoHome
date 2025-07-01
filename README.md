@@ -51,8 +51,9 @@ Go to "Settings" -> "Devices & services". On the bottom right is a blue button c
 
 Click OK, your sensors should now be visible on Home Assistant's custom dashboard called "MQTT Sensors".
 
-## How to send data
+## How to send data to Mosquitto
 
+Obviously the MQTT Container & Home Assistant Container should be running!  
 Once the project is open and all requirements set up over the ESP-IDF Extension, open up the menuconfig of the ESP-IDF extension by pressing F1 within VSCode, and then type:
 ```
 >ESP-IDF: SDK Configuration Editor (Menuconfig)
