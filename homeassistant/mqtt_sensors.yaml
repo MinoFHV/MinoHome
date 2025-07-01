@@ -4,18 +4,21 @@ sensor:
     unit_of_measurement: "°C"
     device_class: temperature
     unique_id: esp32_temperature
+    object_id: "esp32_temperature"
 
   - name: "ESP32 Humidity"
     state_topic: "home/esp32/humidity"
     unit_of_measurement: "%"
     device_class: humidity
     unique_id: esp32_humidity
+    object_id: "esp32_humidity"
 
   - name: "ESP32 Potentiometer Voltage"
     state_topic: "home/esp32/poti_voltage"
     unit_of_measurement: "V"
     device_class: voltage
     unique_id: esp32_poti_voltage
+    object_id: "esp32_poti_voltage"
     value_template: "{{ value | float | round(2) }}"
 
   - name: "ESP32 Carbondioxide"
@@ -23,6 +26,7 @@ sensor:
     unit_of_measurement: "ppm"
     device_class: "carbon_dioxide"
     unique_id: esp32_co2
+    object_id: "esp32_co2"
 
   - name: "ESP32 Formaldehyde"
     state_topic: "home/esp32/formaldehyde"
@@ -30,6 +34,7 @@ sensor:
     state_class: measurement
     icon: mdi:biohazard
     unique_id: esp32_formaldehyde
+    object_id: "esp32_formaldehyde"
 
   - name: "ESP32 TVOC"
     state_topic: "home/esp32/tvoc"
@@ -37,6 +42,7 @@ sensor:
     state_class: measurement
     icon: mdi:biohazard
     unique_id: esp32_tvoc
+    object_id: "esp32_tvoc"
 
   - name: "ESP32 Air Quality"
     state_topic: "home/esp32/airquality"
@@ -44,6 +50,7 @@ sensor:
     unit_of_measurement: ""
     state_class: measurement
     unique_id: esp32_airquality
+    object_id: "esp32_airquality"
     value_template: "{{ value | int }}"
 
   - name: "ESP32 Light"
@@ -51,3 +58,4 @@ sensor:
     unit_of_measurement: "lx"
     device_class: "illuminance"
     unique_id: esp32_light
+    object_id: "esp32_light"
