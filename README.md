@@ -69,4 +69,4 @@ and type in the relevant information:
 - MQTT Broker URI: Format is "mqtt://Your-PC-IP-Address"
 - MQTT Broker Port: 1883
 
-You're now ready to go to Build, Flash, and Monitor the Firmware. Make sure that if you Monitor, that you use USB JTAG cables, since UART is used by the TVOC Gas Sensor, making it impossible to Flash & Monitor over UART. You can also just temporarily unplug the TX and RX cables from the Gas Sensor and plug it back in once you start Monitoring.
+Make sure that you click "Save"! You're now ready to go to Build, Flash, and Monitor the Firmware. Make sure that if you Monitor, that you use USB JTAG cables, since UART is used by the TVOC Gas Sensor, making it impossible to Flash & Monitor over UART. You can also just temporarily unplug the TX and RX cables from the Gas Sensor and plug it back in once you start Monitoring.
