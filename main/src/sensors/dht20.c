@@ -131,8 +131,8 @@ void dht20_measure_and_sendmqtt_task(void *pvParameters)
             xSemaphoreGive(i2c_semaphore);
         }
 
-        sendMQTTpayload("home/esp32/temperature", &temperature, format_float);
-        sendMQTTpayload("home/esp32/humidity", &humidity, format_float);
+        sendMQTTpayload(MQTT_TOPIC_TEMPERATURE, &temperature, format_float);
+        sendMQTTpayload(MQTT_TOPIC_HUMIDITY, &humidity, format_float);
         
         vTaskDelayUntil(&last_wake_time, interval);
 

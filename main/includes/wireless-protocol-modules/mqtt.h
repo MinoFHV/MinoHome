@@ -4,6 +4,15 @@
 
 #include "esp_err.h"
 
+#define MQTT_TOPIC_TEMPERATURE      "home/esp32/temperature"
+#define MQTT_TOPIC_HUMIDITY         "home/esp32/humidity"
+#define MQTT_TOPIC_POTI             "home/esp32/poti_voltage"
+#define MQTT_TOPIC_LIGHT            "home/esp32/lightsensor"
+#define MQTT_TOPIC_CO2              "home/esp32/carbondioxide"
+#define MQTT_TOPIC_CH2O             "home/esp32/formaldehyde"
+#define MQTT_TOPIC_TVOC             "home/esp32/tvoc"
+#define MQTT_TOPIC_AIRQUALITY       "home/esp32/airquality"
+
 
 typedef enum
 {

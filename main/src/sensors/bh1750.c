@@ -83,7 +83,7 @@ void bh1750_measure_and_sendmqtt_task(void *pvParameters)
             xSemaphoreGive(i2c_semaphore);
         }
 
-        sendMQTTpayload("home/esp32/lightsensor", &lux, format_float);
+        sendMQTTpayload(MQTT_TOPIC_LIGHT, &lux, format_float);
         
         vTaskDelayUntil(&last_wake_time, interval);
 
