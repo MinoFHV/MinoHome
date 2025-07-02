@@ -16,7 +16,7 @@
 static const char *TAG = "MQTT";
 static esp_mqtt_client_handle_t mqtt_client = NULL;
 static EventGroupHandle_t mqtt_event_group;
-
+static SemaphoreHandle_t mqtt_semaphore = NULL;
 
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
@@ -106,33 +106,53 @@ esp_err_t mqtt_init()
         return ESP_ERR_TIMEOUT;
     }
 
+    // Create mqtt semaphore
+    mqtt_semaphore = xSemaphoreCreateMutex();
+    if (mqtt_semaphore == NULL)
+    {
+        ESP_LOGE(TAG, "xSemaphoreCreateMutex failed!");
+        return ESP_FAIL;
+    }
+
 }
 
 mqtt_status_t sendMQTTpayload(const char *topic, const void *value, formatter_t formatter)
 {
 
-    if (mqtt_client == NULL) return MQTT_NO_CLIENT;
+    mqtt_status_t ret = NULL;
 
-    char buf[32];
-    formatter(buf, sizeof(buf), value);
-    
-    int ret = esp_mqtt_client_publish(mqtt_client, topic, buf, 0, 1, 0);
-    if (ret >= 0)
+    if (xSemaphoreTake(mqtt_semaphore, pdMS_TO_TICKS(100) == pdTRUE))
     {
-        ESP_LOGI(TAG, "Published message, topic=%s, data=%s", topic, buf);
-        return MQTT_OK;
-    }
-    else if (ret == -1)
-    {
-        ESP_LOGE(TAG, "MQTT Error: Failure publishing!");
-        return MQTT_FAILURE;
-    } 
-    else if (ret == -2)
-    {
-        ESP_LOGE(TAG, "MQTT Error: Full outbox!");
-        return MQTT_FULL_OUTBOX;
+            
+        if (mqtt_client == NULL) return MQTT_NO_CLIENT;
+
+        char buf[32];
+        formatter(buf, sizeof(buf), value);
+        
+        int ret = esp_mqtt_client_publish(mqtt_client, topic, buf, 0, 1, 0);
+        if (ret >= 0)
+        {
+            ESP_LOGI(TAG, "Published message, topic=%s, data=%s", topic, buf);
+            ret = MQTT_OK;
+        }
+        else if (ret == -1)
+        {
+            ESP_LOGE(TAG, "MQTT Error: Failure publishing!");
+            ret = MQTT_FAILURE;
+        } 
+        else if (ret == -2)
+        {
+            ESP_LOGE(TAG, "MQTT Error: Full outbox!");
+            ret = MQTT_FULL_OUTBOX;
+        } else
+        {
+            ret = MQTT_UNKNOWN_ERROR;
+        }
+
+        xSemaphoreGive(mqtt_semaphore);
+
     }
 
-    return MQTT_UNKNOWN_ERROR;
+    return ret;
 
 }
