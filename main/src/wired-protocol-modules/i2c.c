@@ -45,12 +45,12 @@ esp_err_t i2c_master_bus_init()
 
 }
 
-i2c_master_bus_handle_t get_i2c_master_bus_handle()
+i2c_master_bus_handle_t i2c_get_master_bus_handle()
 {
     return i2c_master_bus_handle;
 }
 
-SemaphoreHandle_t get_i2c_semaphore()
+SemaphoreHandle_t i2c_get_semaphore()
 {
     return i2c_semaphore;
 }

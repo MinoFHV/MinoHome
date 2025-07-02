@@ -35,7 +35,7 @@ esp_err_t bh1750_init()
     };
 
     ESP_LOGI(TAG, "Adding BH1750 device to I2C bus...");
-    esp_err_t ret = check_esp_err(i2c_master_bus_add_device(get_i2c_master_bus_handle(), &i2c_device_config, &bh1750_dev_handle), "i2c_master_bus_add_device", TAG);
+    esp_err_t ret = check_esp_err(i2c_master_bus_add_device(i2c_get_master_bus_handle(), &i2c_device_config, &bh1750_dev_handle), "i2c_master_bus_add_device", TAG);
     if (ret != ESP_OK) return ret;
 
     ESP_LOGI(TAG, "Send lux resolution command...");
@@ -70,7 +70,7 @@ void bh1750_measure_and_sendmqtt_task(void *pvParameters)
     TickType_t last_wake_time = xTaskGetTickCount();
     const TickType_t interval = pdMS_TO_TICKS(FREERTOS_TASK_REFRESH_TIME);
 
-    SemaphoreHandle_t i2c_semaphore = get_i2c_semaphore();
+    SemaphoreHandle_t i2c_semaphore = i2c_get_semaphore();
     float lux = 0.0f;
 
     while (1)
