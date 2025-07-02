@@ -127,13 +127,17 @@ void dht20_measure_and_sendmqtt_task(void *pvParameters)
         // Locking mechanism to prevent I2C master bus errors during simultaneous access
         if (xSemaphoreTake(i2c_semaphore, pdMS_TO_TICKS(500)) == pdTRUE)
         {
-            dht20_read_temperature_and_humidity(&temperature, &humidity);
+            
+            if (dht20_read_temperature_and_humidity(&temperature, &humidity) == ESP_OK)
+            {
+                sendMQTTpayload(MQTT_TOPIC_TEMPERATURE, &temperature, format_float);
+                sendMQTTpayload(MQTT_TOPIC_HUMIDITY, &humidity, format_float);
+            };
+            
             xSemaphoreGive(i2c_semaphore);
+
         }
 
-        sendMQTTpayload(MQTT_TOPIC_TEMPERATURE, &temperature, format_float);
-        sendMQTTpayload(MQTT_TOPIC_HUMIDITY, &humidity, format_float);
-        
         vTaskDelayUntil(&last_wake_time, interval);
 
     }
