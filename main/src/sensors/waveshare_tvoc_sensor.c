@@ -111,14 +111,19 @@ void tvoc_sensor_measure_and_sendmqtt_task(void *pvParameters)
     while (1)
     {
 
-        read_co2_ch2o_tvoc_airquality(&air_quality, &co2, &ch2o, &tvoc);
+        if (read_co2_ch2o_tvoc_airquality(&air_quality, &co2, &ch2o, &tvoc) == SENSOR_OK)
+        {
 
-        sendMQTTpayload(MQTT_TOPIC_CO2, &co2, format_uint16);
-        sendMQTTpayload(MQTT_TOPIC_CH2O, &ch2o, format_uint16);
-        sendMQTTpayload(MQTT_TOPIC_TVOC, &tvoc, format_float);
-        sendMQTTpayload(MQTT_TOPIC_AIRQUALITY, &air_quality, format_uint8);
+            sendMQTTpayload(MQTT_TOPIC_CO2, &co2, format_uint16);
+            sendMQTTpayload(MQTT_TOPIC_CH2O, &ch2o, format_uint16);
+            sendMQTTpayload(MQTT_TOPIC_TVOC, &tvoc, format_float);
+            sendMQTTpayload(MQTT_TOPIC_AIRQUALITY, &air_quality, format_uint8);
 
-        vTaskDelayUntil(&last_wake_time, interval);
+            vTaskDelayUntil(&last_wake_time, interval);
+
+        };
+
+
 
     }
 
