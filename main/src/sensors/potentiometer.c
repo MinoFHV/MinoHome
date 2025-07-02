@@ -74,8 +74,11 @@ void adc_potentiometer_sendmqtt_task(void *pvParameters)
     while (1)
     {
 
-        adc_potentiometer_read_voltage(&potentiometer_voltage);
-        sendMQTTpayload(MQTT_TOPIC_POTI, &potentiometer_voltage, format_float);
+        if (adc_potentiometer_read_voltage(&potentiometer_voltage) == ESP_OK)
+        {
+            sendMQTTpayload(MQTT_TOPIC_POTI, &potentiometer_voltage, format_float);
+        };
+        
 
         vTaskDelayUntil(&last_wake_time, interval);
 
