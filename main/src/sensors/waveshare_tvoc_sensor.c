@@ -119,7 +119,7 @@ void tvoc_sensor_measure_and_sendmqtt_task(void *pvParameters)
     while (1)
     {
 
-        if (tvoc_read_co2_ch2o_tvoc_airquality(&air_quality, &co2, &ch2o, &tvoc) == SENSOR_OK)
+        if ((tvoc_read_co2_ch2o_tvoc_airquality(&air_quality, &co2, &ch2o, &tvoc) == SENSOR_OK) && air_quality > 0)
         {
 
             sendMQTTpayload(MQTT_TOPIC_CO2, &co2, format_uint16);
