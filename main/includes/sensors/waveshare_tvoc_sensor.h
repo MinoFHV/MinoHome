@@ -13,5 +13,5 @@ typedef enum
 
 esp_err_t uart_init();
 esp_err_t tvoc_set_active_mode();
-tvoc_sensor_uart_status_t read_co2_ch2o_tvoc_airquality(uint8_t *air_quality, uint16_t *co2, uint16_t *ch2o, float *tvoc);
+tvoc_sensor_uart_status_t tvoc_read_co2_ch2o_tvoc_airquality(uint8_t *air_quality, uint16_t *co2, uint16_t *ch2o, float *tvoc);
 void tvoc_sensor_measure_and_sendmqtt_task(void *pvParameters);

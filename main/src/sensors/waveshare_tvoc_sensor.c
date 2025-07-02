@@ -18,8 +18,9 @@
 #define TVOC_FRAME_FOOTER               0x16
 #define TVOC_FRAME_SIZE                 11
 #define TVOC_ACTIVE_MODE_CMD_LEN        9
+#define TVOC_WARMUP_WAIT_TIME_MS        120000  // 120 seconds
 
-#define FREERTOS_TASK_REFRESH_TIME      10000 // Usually, you'd do 30-60 seconds, but this is just better for the showcase :3
+#define FREERTOS_TASK_REFRESH_TIME      10000   // Usually, you'd do 30-60 seconds, but this is just better for the showcase :3
 
 
 static const char *TAG = "TVOC";
@@ -42,7 +43,7 @@ esp_err_t tvoc_set_active_mode()
 
 }
 
-tvoc_sensor_uart_status_t read_co2_ch2o_tvoc_airquality(uint8_t *air_quality, uint16_t *co2, uint16_t *ch2o, float *tvoc)
+tvoc_sensor_uart_status_t tvoc_read_co2_ch2o_tvoc_airquality(uint8_t *air_quality, uint16_t *co2, uint16_t *ch2o, float *tvoc)
 {
 
     uint8_t response_frame[TVOC_FRAME_SIZE];
@@ -99,6 +100,13 @@ tvoc_sensor_uart_status_t read_co2_ch2o_tvoc_airquality(uint8_t *air_quality, ui
 void tvoc_sensor_measure_and_sendmqtt_task(void *pvParameters)
 {
 
+    // Initial 120s warmup delay
+    ESP_LOGI(TAG, "TVOC Sensor warming up for 120 seconds...");
+    vTaskDelay(pdMS_TO_TICKS(TVOC_WARMUP_WAIT_TIME_MS));
+    ESP_LOGI(TAG, "Warmup done. Starting regular measurements.");
+
+    tvoc_set_active_mode();
+
     // This is to make sure that the task always runs at a fixed interval
     TickType_t last_wake_time = xTaskGetTickCount();
     const TickType_t interval = pdMS_TO_TICKS(FREERTOS_TASK_REFRESH_TIME);
@@ -111,7 +119,7 @@ void tvoc_sensor_measure_and_sendmqtt_task(void *pvParameters)
     while (1)
     {
 
-        if (read_co2_ch2o_tvoc_airquality(&air_quality, &co2, &ch2o, &tvoc) == SENSOR_OK)
+        if (tvoc_read_co2_ch2o_tvoc_airquality(&air_quality, &co2, &ch2o, &tvoc) == SENSOR_OK)
         {
 
             sendMQTTpayload(MQTT_TOPIC_CO2, &co2, format_uint16);

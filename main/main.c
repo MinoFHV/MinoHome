@@ -61,7 +61,6 @@ void app_main()
     freeze_program_if_init_error("BH1750_INIT", bh1750_init()); // Light Sensor
     freeze_program_if_init_error("ADC_INIT", adc_init()); // ADC Init for Potentiometer
     freeze_program_if_init_error("UART_INIT", uart_init()); // UART Init for TVOC Sensor TODO: Move this to after i2c_bus_init();
-    freeze_program_if_init_error("TVOC_INIT", tvoc_set_active_mode()); // Setting TVOC Sensor to Active
 
     // FreeRTOS Sensor Tasks
     xTaskCreate(dht20_measure_and_sendmqtt_task, "dht20_measure_and_sendmqtt_task", 4096, NULL, 5, NULL);
