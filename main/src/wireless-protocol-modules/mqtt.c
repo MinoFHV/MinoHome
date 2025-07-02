@@ -92,6 +92,14 @@ esp_err_t mqtt_init()
         return ret;
     }
 
+    // Create mqtt semaphore
+    mqtt_semaphore = xSemaphoreCreateMutex();
+    if (mqtt_semaphore == NULL)
+    {
+        ESP_LOGE(TAG, "xSemaphoreCreateMutex failed!");
+        return ESP_FAIL;
+    }
+
     // Wait for connection event or timeout (10 seconds)
     EventBits_t bits = xEventGroupWaitBits(mqtt_event_group, MQTT_CONNECTED_BIT, pdFALSE, pdTRUE, pdMS_TO_TICKS(10000));
 
@@ -106,25 +114,21 @@ esp_err_t mqtt_init()
         return ESP_ERR_TIMEOUT;
     }
 
-    // Create mqtt semaphore
-    mqtt_semaphore = xSemaphoreCreateMutex();
-    if (mqtt_semaphore == NULL)
-    {
-        ESP_LOGE(TAG, "xSemaphoreCreateMutex failed!");
-        return ESP_FAIL;
-    }
+
 
 }
 
 mqtt_status_t sendMQTTpayload(const char *topic, const void *value, formatter_t formatter)
 {
 
-    mqtt_status_t ret = NULL;
+    mqtt_status_t mqtt_status = MQTT_UNKNOWN_ERROR;
+    EventBits_t eventbits = xEventGroupGetBits(mqtt_event_group);
 
-    if (xSemaphoreTake(mqtt_semaphore, pdMS_TO_TICKS(100) == pdTRUE))
+    if (xSemaphoreTake(mqtt_semaphore, pdMS_TO_TICKS(250)) == pdTRUE)
     {
             
         if (mqtt_client == NULL) return MQTT_NO_CLIENT;
+        if ((eventbits & MQTT_CONNECTED_BIT) == 0) return MQTT_NOT_CONNECTED;
 
         char buf[32];
         formatter(buf, sizeof(buf), value);
@@ -133,26 +137,23 @@ mqtt_status_t sendMQTTpayload(const char *topic, const void *value, formatter_t 
         if (ret >= 0)
         {
             ESP_LOGI(TAG, "Published message, topic=%s, data=%s", topic, buf);
-            ret = MQTT_OK;
+            mqtt_status = MQTT_OK;
         }
         else if (ret == -1)
         {
             ESP_LOGE(TAG, "MQTT Error: Failure publishing!");
-            ret = MQTT_FAILURE;
+            mqtt_status = MQTT_FAILURE;
         } 
         else if (ret == -2)
         {
             ESP_LOGE(TAG, "MQTT Error: Full outbox!");
-            ret = MQTT_FULL_OUTBOX;
-        } else
-        {
-            ret = MQTT_UNKNOWN_ERROR;
+            mqtt_status = MQTT_FULL_OUTBOX;
         }
 
         xSemaphoreGive(mqtt_semaphore);
 
     }
 
-    return ret;
+    return mqtt_status;
 
 }

@@ -77,7 +77,7 @@ void bh1750_measure_and_sendmqtt_task(void *pvParameters)
     {
 
         // Locking mechanism to prevent I2C master bus errors during simultaneous access
-        if (xSemaphoreTake(i2c_semaphore, pdMS_TO_TICKS(100) == pdTRUE))
+        if (xSemaphoreTake(i2c_semaphore, pdMS_TO_TICKS(500)) == pdTRUE)
         {
             bh1750_read_lux(&lux);
             xSemaphoreGive(i2c_semaphore);

@@ -20,7 +20,8 @@ typedef enum
     MQTT_OK = 0,
     MQTT_NO_CLIENT = 1,
     MQTT_FAILURE = 2,
-    MQTT_FULL_OUTBOX = 3
+    MQTT_FULL_OUTBOX = 3,
+    MQTT_NOT_CONNECTED = 4
 } mqtt_status_t;
 
 typedef int (*formatter_t)(char *buf, size_t buf_len, const void *value);

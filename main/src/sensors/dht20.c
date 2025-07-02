@@ -73,7 +73,7 @@ esp_err_t dht20_init(void)
     };
 
     ESP_LOGI(TAG, "Adding DHT20 device to I2C bus...");
-    esp_err_t ret = check_esp_err(i2c_master_bus_add_device(get_i2c_master_bus_handle(), &i2c_device_config, &dht20_dev_handle), "i2c_master_bus_add_device", TAG);
+    esp_err_t ret = check_esp_err(i2c_master_bus_add_device(i2c_get_master_bus_handle(), &i2c_device_config, &dht20_dev_handle), "i2c_master_bus_add_device", TAG);
     if (ret != ESP_OK) return ret;
 
     ESP_LOGI(TAG, "DHT20 device initialized!");
@@ -117,7 +117,7 @@ void dht20_measure_and_sendmqtt_task(void *pvParameters)
     TickType_t last_wake_time = xTaskGetTickCount();
     const TickType_t interval = pdMS_TO_TICKS(FREERTOS_TASK_REFRESH_TIME);
 
-    SemaphoreHandle_t i2c_semaphore = get_i2c_semaphore();
+    SemaphoreHandle_t i2c_semaphore = i2c_get_semaphore();
     float temperature = 0.0f;
     float humidity = 0.0f;
 
@@ -125,7 +125,7 @@ void dht20_measure_and_sendmqtt_task(void *pvParameters)
     {
 
         // Locking mechanism to prevent I2C master bus errors during simultaneous access
-        if (xSemaphoreTake(i2c_semaphore, pdMS_TO_TICKS(100) == pdTRUE))
+        if (xSemaphoreTake(i2c_semaphore, pdMS_TO_TICKS(500)) == pdTRUE)
         {
             dht20_read_temperature_and_humidity(&temperature, &humidity);
             xSemaphoreGive(i2c_semaphore);
