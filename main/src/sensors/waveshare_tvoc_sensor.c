@@ -119,11 +119,11 @@ void tvoc_sensor_measure_and_sendmqtt_task(void *pvParameters)
             sendMQTTpayload(MQTT_TOPIC_TVOC, &tvoc, format_float);
             sendMQTTpayload(MQTT_TOPIC_AIRQUALITY, &air_quality, format_uint8);
 
-            vTaskDelayUntil(&last_wake_time, interval);
+            
 
         };
 
-
+        vTaskDelayUntil(&last_wake_time, interval);
 
     }
 
