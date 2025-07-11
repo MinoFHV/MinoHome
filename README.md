@@ -1,7 +1,7 @@
 # MinoHome
 
 Known Bugs:
-- ESP32-C3 might crash after a while and send any data whatsoever anymore. Reason for this is unknown due to no debugging using JTAG, lack of time.
+- ESP32-C3 might crash after a while and send any data whatsoever anymore (~1-2 days). Reason for this is unknown due to no debugging using JTAG, lack of time.
 
 ---
 
