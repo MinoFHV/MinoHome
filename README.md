@@ -1,5 +1,8 @@
 # MinoHome
 
+Known Bugs:
+- ESP32-C3 might crash after a while and send any data whatsoever anymore. Reason for this is unknown due to no debugging using JTAG, lack of time.
+
 This project aims to get a grade in the Master's CompSci subject "Communication Systems" at the FHV Vorarlberg.  
 The goal is to:
 - Set up a Home Assistant alongside Mosquitto as a MQTT Message Broker locally using Docker (and Docker Compose)
