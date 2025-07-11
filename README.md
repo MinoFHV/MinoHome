@@ -1,7 +1,7 @@
 # MinoHome
 
 Known Bugs:
-- ESP32-C3 might crash after a while and send any data whatsoever anymore (~1-2 days). Reason for this is unknown due to no debugging using JTAG, lack of time.
+- ESP32-C3 might crash after a while and send any data whatsoever anymore (~1-2 days). Reason for this is unknown due to no debugging using JTAG as debugging over UART isn't possible since UART is being used for TVOC Sensor (lack of time to set up a USB JTAG cable).
 
 ---
 
